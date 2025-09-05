@@ -1,0 +1,779 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Bảng người dùng
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player    Player?
+  sessions  Session[]
+
+  @@map("users")
+}
+
+// Bảng phiên đăng nhập
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Bảng người chơi
+model Player {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  name        String
+  level       Int      @default(1)
+  realm       String   @default("Phàm cảnh")
+  experience  BigInt   @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resources   PlayerResource[]
+  companions  PlayerCompanion[]
+  achievements PlayerAchievement[]
+  quests      PlayerQuest[]
+  stats       PlayerStats?
+  equipments  PlayerEquipment[]
+  skills      PlayerSkill[]
+  talents     PlayerTalent[]
+  buffs       PlayerBuff[]
+  purchases   PurchaseHistory[]
+  inventory   Inventory[]
+  craftingHistory CraftingHistory[]
+  furnaces    PlayerFurnace[]
+  spiritBeasts SpiritBeast[]
+  beastFeedingHistory BeastFeedingHistory[]
+  huntingHistory HuntingHistory[]
+  cultivationLogs CultivationLog[]
+
+  @@map("players")
+}
+
+// Bảng tài nguyên
+model Resource {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  icon        String?
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  playerResources PlayerResource[]
+
+  @@map("resources")
+}
+
+// Bảng tài nguyên của người chơi
+model PlayerResource {
+  id         String   @id @default(cuid())
+  playerId   String
+  resourceId String
+  amount     Decimal  @default(0)
+  locked     Decimal  @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Quan hệ
+  player   Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  resource Resource @relation(fields: [resourceId], references: [id])
+
+  @@unique([playerId, resourceId])
+  @@map("player_resources")
+}
+
+// Bảng bạn đồng hành
+model Companion {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  icon        String?
+  rarity      String   @default("common") // common, rare, epic, legendary
+  basePower   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  playerCompanions PlayerCompanion[]
+
+  @@map("companions")
+}
+
+// Bảng bạn đồng hành của người chơi
+model PlayerCompanion {
+  id          String   @id @default(cuid())
+  playerId    String
+  companionId String
+  level       Int      @default(1)
+  power       Int      @default(0)
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  player    Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  companion Companion @relation(fields: [companionId], references: [id])
+
+  @@unique([playerId, companionId])
+  @@map("player_companions")
+}
+
+// Bảng thành tựu
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  icon        String?
+  category    String   @default("general")
+  points      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  playerAchievements PlayerAchievement[]
+
+  @@map("achievements")
+}
+
+// Bảng thành tựu của người chơi
+model PlayerAchievement {
+  id            String   @id @default(cuid())
+  playerId      String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  // Quan hệ
+  player      Player      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([playerId, achievementId])
+  @@map("player_achievements")
+}
+
+// Bảng nhiệm vụ
+model Quest {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  category    String   @default("main")
+  difficulty  String   @default("easy") // easy, medium, hard, expert
+  rewards     String?  // JSON string chứa phần thưởng
+  requirements String? // JSON string chứa yêu cầu
+  isActive    Boolean  @default(true)
+  isRepeatable Boolean @default(false) // Có thể lặp lại không
+  repeatInterval Int?  // Chu kỳ lặp lại (phút): 5, 10, 15, 20
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  playerQuests PlayerQuest[]
+
+  @@map("quests")
+}
+
+// Bảng nhiệm vụ của người chơi
+model PlayerQuest {
+  id        String   @id @default(cuid())
+  playerId  String
+  questId   String
+  status    String   @default("available") // available, in_progress, completed, failed, cooldown
+  progress  String?  // JSON string chứa tiến độ
+  startedAt DateTime?
+  completedAt DateTime?
+  lastCompletedAt DateTime? // Thời gian hoàn thành lần cuối (cho nhiệm vụ lặp lại)
+  cooldownUntil DateTime? // Thời gian có thể nhận lại nhiệm vụ
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  quest  Quest  @relation(fields: [questId], references: [id])
+
+  @@unique([playerId, questId])
+  @@map("player_quests")
+}
+
+// Bảng thuộc tính nhân vật
+model PlayerStats {
+  id        String   @id @default(cuid())
+  playerId  String   @unique
+  hp        Int      @default(100)      // Máu
+  mp        Int      @default(50)       // Pháp lực
+  attack    Int      @default(10)       // Tấn công
+  defense   Int      @default(5)        // Phòng thủ
+  speed     Int      @default(8)        // Tốc độ
+  luck      Int      @default(5)        // May mắn
+  wisdom    Int      @default(5)        // Trí tuệ
+  strength  Int      @default(5)        // Sức mạnh
+  agility   Int      @default(5)        // Nhanh nhẹn
+  vitality  Int      @default(5)        // Sinh lực
+  spirit    Int      @default(5)        // Tinh thần
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@map("player_stats")
+}
+
+// Bảng loại trang bị
+model EquipmentType {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  slot        String   @unique // weapon, armor, accessory, etc.
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  equipments Equipment[]
+
+  @@map("equipment_types")
+}
+
+// Bảng trang bị
+model Equipment {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  displayName     String
+  description     String?
+  typeId          String
+  rarity          String   @default("common") // common, uncommon, rare, epic, legendary
+  level           Int      @default(1)
+  stats           String?  // JSON chứa stats
+  requirements    String?  // JSON chứa yêu cầu
+  price           Int      @default(0)
+  isTradeable     Boolean  @default(true)
+  isSellable      Boolean  @default(true)
+  icon            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Quan hệ
+  type            EquipmentType @relation(fields: [typeId], references: [id])
+  playerEquipments PlayerEquipment[]
+
+  @@map("equipments")
+}
+
+// Bảng trang bị của người chơi
+model PlayerEquipment {
+  id          String   @id @default(cuid())
+  playerId    String
+  equipmentId String
+  isEquipped  Boolean  @default(false)
+  durability  Int      @default(100)
+  enhancement Int      @default(0) // Cường hóa
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  player    Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  equipment Equipment @relation(fields: [equipmentId], references: [id])
+
+  @@unique([playerId, equipmentId])
+  @@map("player_equipments")
+}
+
+// Bảng kỹ năng
+model Skill {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  category    String   @default("combat") // combat, cultivation, crafting, etc.
+  type        String   @default("active") // active, passive, buff, debuff
+  level       Int      @default(1)
+  maxLevel    Int      @default(10)
+  cooldown    Int      @default(0) // Giây
+  mpCost      Int      @default(0)
+  damage      Int      @default(0)
+  effects     String?  // JSON chứa hiệu ứng
+  requirements String? // JSON chứa yêu cầu
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  playerSkills PlayerSkill[]
+
+  @@map("skills")
+}
+
+// Bảng kỹ năng của người chơi
+model PlayerSkill {
+  id        String   @id @default(cuid())
+  playerId  String
+  skillId   String
+  level     Int      @default(1)
+  isLearned Boolean  @default(false)
+  learnedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  skill  Skill  @relation(fields: [skillId], references: [id])
+
+  @@unique([playerId, skillId])
+  @@map("player_skills")
+}
+
+// Bảng loại thiên phú
+model TalentType {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  icon        String?
+  color       String?  // Màu sắc đại diện
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  talents Talent[]
+
+  @@map("talent_types")
+}
+
+// Bảng thiên phú
+model Talent {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  typeId      String
+  rarity      String   @default("common") // common, uncommon, rare, epic, legendary, mythic
+  level       Int      @default(1)
+  maxLevel    Int      @default(10)
+  effects     String?  // JSON chứa hiệu ứng
+  requirements String? // JSON chứa yêu cầu
+  cost        Int      @default(0) // Chi phí để nâng cấp
+  isActive    Boolean  @default(true)
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  type         TalentType @relation(fields: [typeId], references: [id])
+  playerTalents PlayerTalent[]
+
+  @@map("talents")
+}
+
+// Bảng thiên phú của người chơi
+model PlayerTalent {
+  id        String   @id @default(cuid())
+  playerId  String
+  talentId  String
+  level     Int      @default(1)
+  isUnlocked Boolean @default(false)
+  unlockedAt DateTime?
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  talent Talent @relation(fields: [talentId], references: [id])
+
+  @@unique([playerId, talentId])
+  @@map("player_talents")
+}
+
+// Bảng buff/debuff
+model Buff {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  type        String   @default("buff") // buff, debuff, neutral
+  category    String   @default("stat") // stat, combat, cultivation, etc.
+  effects     String?  // JSON chứa hiệu ứng
+  duration    Int      @default(0) // Thời gian tồn tại (giây), 0 = vĩnh viễn
+  stackable   Boolean  @default(false) // Có thể stack không
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  playerBuffs PlayerBuff[]
+
+  @@map("buffs")
+}
+
+// Bảng buff của người chơi
+model PlayerBuff {
+  id        String   @id @default(cuid())
+  playerId  String
+  buffId    String
+  level     Int      @default(1)
+  stacks    Int      @default(1)
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  buff   Buff   @relation(fields: [buffId], references: [id])
+
+  @@unique([playerId, buffId])
+  @@map("player_buffs")
+}
+
+// Bảng cấu hình game
+model GameConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string") // string, number, boolean, json
+  category  String   @default("general")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("game_configs")
+}
+
+// Bảng cửa hàng
+model Shop {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  category    String   @default("general") // general, equipment, consumables, materials
+  isActive    Boolean  @default(true)
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  items     ShopItem[]
+  purchases PurchaseHistory[]
+
+  @@map("shops")
+}
+
+// Bảng item trong cửa hàng
+model ShopItem {
+  id          String   @id @default(cuid())
+  shopId      String
+  itemType    String   // equipment, consumable, material, etc.
+  itemId      String   // ID của item tương ứng
+  name        String
+  displayName String
+  description String?
+  price       Int      // Giá bằng Tiên Ngọc
+  currency    String   @default("tien_ngoc") // Loại tiền tệ
+  stock       Int      @default(-1) // -1 = vô hạn, >0 = số lượng có hạn
+  isActive    Boolean  @default(true)
+  level       Int      @default(1) // Cấp độ yêu cầu
+  rarity      String   @default("common") // common, uncommon, rare, epic, legendary
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, itemId])
+  @@map("shop_items")
+}
+
+// Bảng lịch sử mua hàng
+model PurchaseHistory {
+  id        String   @id @default(cuid())
+  playerId  String
+  shopId    String
+  itemId    String
+  itemName  String
+  quantity  Int      @default(1)
+  price     Int
+  currency  String
+  totalCost Int
+  createdAt DateTime @default(now())
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  @@map("purchase_histories")
+}
+
+// Bảng túi đồ
+model Inventory {
+  id        String   @id @default(cuid())
+  playerId  String
+  itemType  String   // equipment, consumable, material, etc.
+  itemId    String   // ID của item
+  name      String
+  quantity  Int      @default(1)
+  stackable Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, itemId])
+  @@map("inventories")
+}
+
+// Bảng công thức chế tạo
+model Recipe {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  category    String   @default("alchemy") // alchemy, forging, crafting
+  level       Int      @default(1)
+  successRate Float    @default(0.8) // Tỷ lệ thành công (0-1)
+  materials   String   // JSON chứa nguyên liệu cần thiết
+  result      String   // JSON chứa kết quả chế tạo
+  experience  Int      @default(100) // Kinh nghiệm nhận được
+  isActive    Boolean  @default(true)
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  craftingHistory CraftingHistory[]
+
+  @@map("recipes")
+}
+
+// Bảng lịch sử chế tạo
+model CraftingHistory {
+  id        String   @id @default(cuid())
+  playerId  String
+  recipeId  String
+  success   Boolean
+  quantity  Int      @default(1)
+  materials String   // JSON chứa nguyên liệu đã sử dụng
+  result    String   // JSON chứa kết quả
+  createdAt DateTime @default(now())
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id])
+
+  @@map("crafting_histories")
+}
+
+// Bảng lò đạo
+model DaoFurnace {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  level       Int      @default(1)
+  maxLevel    Int      @default(10)
+  efficiency  Float    @default(1.0) // Hiệu suất chế tạo
+  isActive    Boolean  @default(true)
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  playerFurnaces PlayerFurnace[]
+
+  @@map("dao_furnaces")
+}
+
+// Bảng lò đạo của người chơi
+model PlayerFurnace {
+  id        String   @id @default(cuid())
+  playerId  String
+  furnaceId String
+  level     Int      @default(1)
+  experience Int     @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player  Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  furnace DaoFurnace @relation(fields: [furnaceId], references: [id])
+
+  @@unique([playerId, furnaceId])
+  @@map("player_furnaces")
+}
+
+// Bảng loại linh thú
+model SpiritBeastType {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  category    String   @default("common") // common, rare, epic, legendary, mythical
+  baseStats   String   // JSON chứa stats cơ bản
+  growthRate  String   // JSON chứa tỷ lệ tăng trưởng
+  skills      String?  // JSON chứa kỹ năng có thể học
+  icon        String?
+  color       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  beasts SpiritBeast[]
+
+  @@map("spirit_beast_types")
+}
+
+// Bảng linh thú
+model SpiritBeast {
+  id        String   @id @default(cuid())
+  playerId  String
+  typeId    String
+  name      String   // Tên riêng của linh thú
+  level     Int      @default(1)
+  experience Int     @default(0)
+  stats     String   // JSON chứa stats hiện tại
+  skills    String?  // JSON chứa kỹ năng đã học
+  happiness Int      @default(100) // Độ hạnh phúc (0-100)
+  hunger    Int      @default(100) // Độ đói (0-100)
+  health    Int      @default(100) // Sức khỏe (0-100)
+  isActive  Boolean  @default(true)
+  isFighting Boolean @default(false)
+  capturedAt DateTime @default(now())
+  lastFedAt DateTime?
+  lastPlayedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  type   SpiritBeastType @relation(fields: [typeId], references: [id])
+  feedingHistory BeastFeedingHistory[]
+  huntingHistory HuntingHistory[]
+
+  @@map("spirit_beasts")
+}
+
+// Bảng thức ăn cho linh thú
+model BeastFood {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  category    String   @default("basic") // basic, premium, special
+  effects     String   // JSON chứa hiệu ứng
+  price       Int      @default(10)
+  currency    String   @default("tien_ngoc")
+  icon        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  feedingHistory BeastFeedingHistory[]
+
+  @@map("beast_foods")
+}
+
+// Bảng lịch sử cho ăn
+model BeastFeedingHistory {
+  id        String   @id @default(cuid())
+  playerId  String
+  beastId   String
+  foodId    String
+  quantity  Int      @default(1)
+  effects   String   // JSON chứa hiệu ứng
+  createdAt DateTime @default(now())
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  beast  SpiritBeast @relation(fields: [beastId], references: [id], onDelete: Cascade)
+  food   BeastFood @relation(fields: [foodId], references: [id])
+
+  @@map("beast_feeding_histories")
+}
+
+// Bảng khu vực săn linh thú
+model HuntingGround {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  level       Int      @default(1)
+  maxLevel    Int      @default(100)
+  difficulty  String   @default("easy") // easy, normal, hard, extreme
+  beastTypes  String   // JSON chứa loại linh thú có thể gặp
+  dropRates   String   // JSON chứa tỷ lệ rơi
+  isActive    Boolean  @default(true)
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Quan hệ
+  huntingHistory HuntingHistory[]
+
+  @@map("hunting_grounds")
+}
+
+// Bảng lịch sử săn linh thú
+model HuntingHistory {
+  id        String   @id @default(cuid())
+  playerId  String
+  groundId  String
+  beastId   String?  // null nếu không bắt được
+  success   Boolean
+  duration  Int      // Thời gian săn (giây)
+  rewards   String?  // JSON chứa phần thưởng
+  createdAt DateTime @default(now())
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  ground HuntingGround @relation(fields: [groundId], references: [id])
+  beast  SpiritBeast? @relation(fields: [beastId], references: [id])
+
+  @@map("hunting_histories")
+}
+
+// Bảng log tu luyện
+model CultivationLog {
+  id          String   @id @default(cuid())
+  playerId    String
+  type        String   @default("manual") // manual, auto_cultivation, breakthrough
+  description String
+  expGained   Int      @default(0)
+  levelGained Int      @default(0)
+  timestamp   DateTime @default(now())
+
+  // Quan hệ
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@map("cultivation_logs")
+}

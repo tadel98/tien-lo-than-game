@@ -1,0 +1,51 @@
+import { PrismaClient } from '@prisma/client'
+import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
+
+const prisma = new PrismaClient()
+
+export default eventHandler(async (event) => {
+  try {
+    const body = await readBody(event)
+    const { playerId, stats } = body
+
+    if (!playerId || !stats) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Thiếu thông tin bắt buộc'
+      })
+    }
+
+    // Kiểm tra người chơi tồn tại
+    const player = await (prisma as any).player.findUnique({
+      where: { id: playerId }
+    })
+
+    if (!player) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Không tìm thấy người chơi'
+      })
+    }
+
+    // Cập nhật hoặc tạo stats
+    const updatedStats = await (prisma as any).playerStats.upsert({
+      where: { playerId },
+      update: stats,
+      create: {
+        playerId,
+        ...stats
+      }
+    })
+
+    return {
+      success: true,
+      message: 'Cập nhật thuộc tính thành công',
+      data: updatedStats
+    }
+  } catch (error: any) {
+    throw createError({
+      statusCode: error.statusCode || 500,
+      statusMessage: error.message || 'Lỗi server'
+    })
+  }
+})
