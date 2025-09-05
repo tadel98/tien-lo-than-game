@@ -7,7 +7,11 @@ const prisma = new PrismaClient()
 
 export default eventHandler(async (event) => {
   try {
+    console.log('Login API called with method:', event.method)
+    
     const body = await readBody(event)
+    console.log('Login request body:', { username: body.username })
+    
     const { username, password } = body
 
     // Validate input
@@ -78,9 +82,13 @@ export default eventHandler(async (event) => {
       token
     }
   } catch (error: any) {
-    throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.message || 'Lỗi server'
-    })
+    console.error('Login error:', error)
+    
+    // Return error response instead of throwing
+    return {
+      success: false,
+      error: error.message || 'Lỗi server',
+      statusCode: error.statusCode || 500
+    }
   }
 })
