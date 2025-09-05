@@ -18,7 +18,18 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-09-05',
   nitro: {
-    preset: 'vercel'
+    preset: 'vercel',
+    experimental: {
+      wasm: true
+    },
+    rollupConfig: {
+      external: ['@prisma/client', '.prisma']
+    },
+    esbuild: {
+      options: {
+        target: 'node18'
+      }
+    }
   },
   ssr: true,
   runtimeConfig: {
