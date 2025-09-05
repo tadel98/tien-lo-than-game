@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run generate",
+  "outputDirectory": ".output/public",
+  "framework": "nuxtjs",
+  "functions": {
+    "server/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
