@@ -18,11 +18,9 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-09-05',
   nitro: {
-    preset: 'vercel',
-    experimental: {
-      wasm: true
-    }
+    preset: 'vercel'
   },
+  ssr: true,
   runtimeConfig: {
     // Private keys (only available on server-side)
     jwtSecret: process.env.JWT_SECRET || 'default-secret',
