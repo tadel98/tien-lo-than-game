@@ -4,7 +4,7 @@
   "description": "Web game tu luyện với giao diện tương tự như hình ảnh",
   "private": true,
   "scripts": {
-    "build": "npx prisma generate && npx nuxt build",
+    "build": "node prisma/vercel-build.js && npx nuxt build",
     "dev": "npx nuxt dev",
     "generate": "npx nuxt generate",
     "preview": "npx nuxt preview",

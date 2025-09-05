@@ -1,0 +1,9 @@
+{
+  "orgId": "tadel",
+  "projectId": "tien-lo-than-game",
+  "settings": {
+    "buildCommand": "node prisma/vercel-build.js && npx nuxt build",
+    "installCommand": "npm install",
+    "framework": "nuxtjs"
+  }
+}
