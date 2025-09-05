@@ -7,7 +7,11 @@ const prisma = new PrismaClient()
 
 export default eventHandler(async (event) => {
   try {
+    console.log('Register API called with method:', event.method)
+    
     const body = await readBody(event)
+    console.log('Request body:', { username: body.username, email: body.email, playerName: body.playerName })
+    
     const { username, email, password, playerName } = body
 
     // Validate input
@@ -92,10 +96,14 @@ export default eventHandler(async (event) => {
       token
     }
   } catch (error: any) {
-    throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.message || 'Lỗi server'
-    })
+    console.error('Register error:', error)
+    
+    // Return error response instead of throwing
+    return {
+      success: false,
+      error: error.message || 'Lỗi server',
+      statusCode: error.statusCode || 500
+    }
   }
 })
 
