@@ -1,10 +1,11 @@
 {
+  "framework": "nuxtjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".output",
-  "framework": "nuxtjs",
   "functions": {
     "server/api/**/*.ts": {
       "runtime": "nodejs18.x"
     }
-  }
+  },
+  "installCommand": "npm install"
 }
