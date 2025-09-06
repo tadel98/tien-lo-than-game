@@ -70,12 +70,19 @@ export default eventHandler(async (event) => {
           statusMessage: 'Nhiệm vụ đang được thực hiện'
         })
       }
-      if (existingPlayerQuest.status === 'completed') {
+      if (existingPlayerQuest.status === 'completed' && !quest.isRepeatable) {
         throw createError({
           statusCode: 400,
           statusMessage: 'Nhiệm vụ đã hoàn thành'
         })
       }
+      if (existingPlayerQuest.status === 'cooldown') {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Nhiệm vụ đang trong thời gian cooldown'
+        })
+      }
+      // Quest có thể bắt đầu nếu status là 'available' hoặc 'completed' (cho repeatable quests)
     }
 
     // Bắt đầu nhiệm vụ

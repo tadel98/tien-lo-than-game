@@ -9,7 +9,7 @@ export default eventHandler(async (event) => {
     const category = query.category as string
 
     // Lấy danh sách cửa hàng
-    const shops = await (prisma as any).shop.findMany({
+    const shops = await prisma.shop.findMany({
       where: {
         isActive: true,
         ...(category && { category })
