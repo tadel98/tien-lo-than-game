@@ -105,6 +105,17 @@
         </NuxtLink>
       </div>
 
+      <!-- Boss Combat Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <NuxtLink to="/boss" class="group">
+          <div class="bg-gradient-to-r from-red-900/20 to-orange-900/20 backdrop-blur-lg rounded-2xl p-6 border border-red-500/30 hover:bg-red-900/30 transition-all transform group-hover:scale-105">
+            <div class="text-4xl mb-4">👹</div>
+            <h3 class="text-xl font-bold text-white mb-2">Boss Chiến Đấu</h3>
+            <p class="text-gray-300">Thách thức các boss mạnh mẽ</p>
+          </div>
+        </NuxtLink>
+      </div>
+
       <!-- Admin & Test Links -->
       <div class="text-center space-x-4">
         <NuxtLink to="/admin" class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">

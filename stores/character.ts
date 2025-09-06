@@ -12,7 +12,51 @@ export const useCharacterStore = defineStore('character', () => {
 
   // Getters
   const combatPower = computed(() => {
-    return stats.value?.combatPower || 0
+    if (!stats.value || !characterData.value) return 0
+    
+    // Tính toán sức mạnh chiến đấu dựa trên level và stats
+    const baseStats = stats.value.base || stats.value
+    const level = characterData.value.level || 1
+    
+    // Tính stats với bonus level (mỗi level tăng 10% stats)
+    const totalStats = {
+      hp: (baseStats.hp || 0) + Math.floor((baseStats.hp || 0) * 0.1 * level),
+      mp: (baseStats.mp || 0) + Math.floor((baseStats.mp || 0) * 0.1 * level),
+      attack: (baseStats.attack || 0) + Math.floor((baseStats.attack || 0) * 0.1 * level),
+      defense: (baseStats.defense || 0) + Math.floor((baseStats.defense || 0) * 0.1 * level),
+      speed: (baseStats.speed || 0) + Math.floor((baseStats.speed || 0) * 0.1 * level),
+      luck: (baseStats.luck || 0) + Math.floor((baseStats.luck || 0) * 0.1 * level),
+      wisdom: (baseStats.wisdom || 0) + Math.floor((baseStats.wisdom || 0) * 0.1 * level),
+      strength: (baseStats.strength || 0) + Math.floor((baseStats.strength || 0) * 0.1 * level),
+      agility: (baseStats.agility || 0) + Math.floor((baseStats.agility || 0) * 0.1 * level),
+      vitality: (baseStats.vitality || 0) + Math.floor((baseStats.vitality || 0) * 0.1 * level),
+      spirit: (baseStats.spirit || 0) + Math.floor((baseStats.spirit || 0) * 0.1 * level)
+    }
+    
+    // Thêm bonus từ equipment
+    let equipmentBonus = 0
+    const equippedItems = equipment.value.filter(eq => eq.isEquipped)
+    equippedItems.forEach((item) => {
+      if (item.stats) {
+        equipmentBonus += (item.stats.strength || 0) + (item.stats.agility || 0) + 
+                         (item.stats.wisdom || 0) + (item.stats.vitality || 0) +
+                         (item.stats.attack || 0) + (item.stats.defense || 0) +
+                         (item.stats.hp || 0) + (item.stats.mp || 0) + (item.stats.speed || 0)
+      }
+    })
+    
+    // Công thức tính sức mạnh chiến đấu mới
+    const basePower = totalStats.hp + totalStats.mp + totalStats.attack + totalStats.defense + 
+                     totalStats.speed + totalStats.luck + totalStats.wisdom + 
+                     totalStats.strength + totalStats.agility + totalStats.vitality + totalStats.spirit
+    
+    // Bonus từ level (mỗi level +1000 combat power)
+    const levelBonus = level * 1000
+    
+    // Bonus từ equipment
+    const equipmentPower = equipmentBonus * 5
+    
+    return Math.floor(basePower * 10 + equipmentPower + levelBonus)
   })
 
   const totalStats = computed(() => {
