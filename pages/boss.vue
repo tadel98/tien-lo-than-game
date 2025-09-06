@@ -271,6 +271,7 @@ const authStore = useAuthStore()
 const playerStore = usePlayerStore()
 const characterStore = useCharacterStore()
 const bossStore = useBossStore()
+const cultivationStore = useCultivationStore()
 
 // Computed
 const isAuthenticated = computed(() => authStore.isLoggedIn)
@@ -334,7 +335,8 @@ const fightBoss = async () => {
       await playerStore.addResource(player.value.id, 'tien_ngoc', processedRewards.tien_ngoc)
       await playerStore.addResource(player.value.id, 'linh_thach', processedRewards.linh_thach)
       
-      // TODO: Thêm EXP và items vào inventory
+      // Thêm EXP vào cultivation system
+      cultivationStore.addExp(processedRewards.exp)
       
       // Đánh dấu boss đã bị đánh bại
       bossStore.markBossDefeated(currentBoss.value.id)

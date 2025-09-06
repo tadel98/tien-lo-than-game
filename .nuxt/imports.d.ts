@@ -32,6 +32,7 @@ export { defineLazyHydrationComponent } from '#app/composables/lazy-hydration';
 export { useAutoSave } from '../composables/useAutoSave';
 export { calculatePointsPerLevel, distributePoints, calculateCombatPower, calculateCombatPowerWithLevel } from '../utils/combat-power';
 export { calculateNextLevelExp, calculateLevelFromExp, calculateRealm, calculateTimeToNextLevel, calculateTotalTimeToMaxLevel, getRealmInfo } from '../utils/cultivation';
+export { expPerDay, expForRealm, totalExpToMax, daysToMax, expForFloor, expToNextFloor, expToNextRealm, getSuccessRate, getRealmName, expToCurrentLevel, expToMaxFromCurrent, daysToNextFloor, daysToNextRealm, calculateCultivationStats, BASE_EXP_PER_DAY, REALMS, FLOORS, REALM_GROWTH, FAIL_RATES, REALM_NAMES } from '../utils/expCalc';
 export { useAuthStore } from '../stores/auth';
 export { useAutoSaveStore } from '../stores/autoSave';
 export { useBossStore } from '../stores/boss';

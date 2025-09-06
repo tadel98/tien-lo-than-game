@@ -1,5 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { 
+  expPerDay, 
+  expForRealm, 
+  expToNextFloor, 
+  expToNextRealm,
+  expToCurrentLevel,
+  getSuccessRate,
+  getRealmName,
+  daysToNextFloor,
+  daysToNextRealm,
+  REALMS,
+  FLOORS,
+  REALM_NAMES
+} from '../utils/expCalc'
 
 // Declare $fetch as global
 declare const $fetch: any
@@ -10,6 +24,12 @@ export const useCultivationStore = defineStore('cultivation', () => {
   const isCultivating = ref(false)
   const loading = ref(false)
   const error = ref(null)
+
+  // Cultivation system state
+  const currentRealmIndex = ref(1) // 1-7
+  const currentFloor = ref(1) // 1-15
+  const currentExp = ref(0)
+  const totalExpGained = ref(0)
 
   // Getters
   const canCultivate = computed(() => {
@@ -27,7 +47,50 @@ export const useCultivationStore = defineStore('cultivation', () => {
   })
 
   const currentRealm = computed(() => {
-    return cultivationStatus.value?.cultivation?.realm || 'Phàm cảnh'
+    return getRealmName(currentRealmIndex.value)
+  })
+
+  // New cultivation system getters
+  const currentRealmDisplay = computed(() => {
+    return `${getRealmName(currentRealmIndex.value)} Tầng ${currentFloor.value}`
+  })
+
+  const expToNextFloor = computed(() => {
+    return expToNextFloor(currentRealmIndex.value, currentFloor.value)
+  })
+
+  const expToNextRealm = computed(() => {
+    return expToNextRealm(currentRealmIndex.value)
+  })
+
+  const canBreakthroughFloor = computed(() => {
+    return currentExp.value >= expToNextFloor.value
+  })
+
+  const canBreakthroughRealm = computed(() => {
+    return currentFloor.value >= FLOORS && currentExp.value >= expToNextRealm.value
+  })
+
+  const currentFloorSuccessRate = computed(() => {
+    return getSuccessRate(currentFloor.value)
+  })
+
+  const isMaxLevel = computed(() => {
+    return currentRealmIndex.value >= REALMS && currentFloor.value >= FLOORS
+  })
+
+  const expPerDayCurrent = computed(() => {
+    return expPerDay(currentRealmIndex.value)
+  })
+
+  const daysToNextFloor = computed(() => {
+    if (isMaxLevel.value) return 0
+    return Math.ceil(expToNextFloor.value / expPerDayCurrent.value)
+  })
+
+  const daysToNextRealm = computed(() => {
+    if (isMaxLevel.value) return 0
+    return Math.ceil(expToNextRealm.value / expPerDayCurrent.value)
   })
 
   // Actions
@@ -134,12 +197,78 @@ export const useCultivationStore = defineStore('cultivation', () => {
   }
 
 
+  // New cultivation system actions
+  const addExp = (amount: number) => {
+    currentExp.value += amount
+    totalExpGained.value += amount
+  }
+
+  const breakthroughFloor = () => {
+    if (!canBreakthroughFloor.value) return false
+    
+    currentExp.value -= expToNextFloor.value
+    currentFloor.value += 1
+    
+    return true
+  }
+
+  const breakthroughRealm = () => {
+    if (!canBreakthroughRealm.value) return false
+    
+    currentExp.value -= expToNextRealm.value
+    currentRealmIndex.value += 1
+    currentFloor.value = 1
+    
+    return true
+  }
+
+  const attemptBreakthrough = () => {
+    const successRate = currentFloorSuccessRate.value
+    const isSuccess = Math.random() < successRate
+    
+    if (isSuccess) {
+      if (currentFloor.value >= FLOORS) {
+        return breakthroughRealm()
+      } else {
+        return breakthroughFloor()
+      }
+    }
+    
+    return false
+  }
+
+  const getCultivationStats = () => {
+    return {
+      currentRealm: currentRealm.value,
+      currentRealmIndex: currentRealmIndex.value,
+      currentFloor: currentFloor.value,
+      currentExp: currentExp.value,
+      expToNextFloor: expToNextFloor.value,
+      expToNextRealm: expToNextRealm.value,
+      canBreakthroughFloor: canBreakthroughFloor.value,
+      canBreakthroughRealm: canBreakthroughRealm.value,
+      successRate: currentFloorSuccessRate.value,
+      isMaxLevel: isMaxLevel.value,
+      expPerDay: expPerDayCurrent.value,
+      daysToNextFloor: daysToNextFloor.value,
+      daysToNextRealm: daysToNextRealm.value
+    }
+  }
+
+  const resetCultivation = () => {
+    currentRealmIndex.value = 1
+    currentFloor.value = 1
+    currentExp.value = 0
+    totalExpGained.value = 0
+  }
+
   // Reset store
   const reset = () => {
     cultivationStatus.value = null
     isCultivating.value = false
     loading.value = false
     error.value = null
+    resetCultivation()
   }
 
   return {
@@ -148,12 +277,26 @@ export const useCultivationStore = defineStore('cultivation', () => {
     isCultivating,
     loading,
     error,
+    currentRealmIndex,
+    currentFloor,
+    currentExp,
+    totalExpGained,
 
     // Getters
     canCultivate,
     canBreakthrough,
     progressPercentage,
     currentRealm,
+    currentRealmDisplay,
+    expToNextFloor,
+    expToNextRealm,
+    canBreakthroughFloor,
+    canBreakthroughRealm,
+    currentFloorSuccessRate,
+    isMaxLevel,
+    expPerDayCurrent,
+    daysToNextFloor,
+    daysToNextRealm,
 
     // Actions
     fetchCultivationStatus,
@@ -161,6 +304,12 @@ export const useCultivationStore = defineStore('cultivation', () => {
     breakthrough,
     getCultivationInfo,
     getRealmColor,
+    addExp,
+    breakthroughFloor,
+    breakthroughRealm,
+    attemptBreakthrough,
+    getCultivationStats,
+    resetCultivation,
     reset
   }
 })

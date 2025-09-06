@@ -40,8 +40,16 @@
         <NuxtLink to="/cultivation" class="group">
           <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all transform group-hover:scale-105">
             <div class="text-4xl mb-4">🧘</div>
-            <h3 class="text-xl font-bold text-white mb-2">Tu Luyện</h3>
+            <h3 class="text-xl font-bold text-white mb-2">Tu Luyện Cơ Bản</h3>
             <p class="text-gray-300">Nâng cao tu vi và sức mạnh</p>
+          </div>
+        </NuxtLink>
+        
+        <NuxtLink to="/cultivation-advanced" class="group">
+          <div class="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 backdrop-blur-lg rounded-2xl p-6 border border-indigo-500/30 hover:bg-indigo-900/30 transition-all transform group-hover:scale-105">
+            <div class="text-4xl mb-4">🌟</div>
+            <h3 class="text-xl font-bold text-white mb-2">Tu Luyện Nâng Cao</h3>
+            <p class="text-gray-300">Hệ thống cảnh giới và tầng</p>
           </div>
         </NuxtLink>
 
