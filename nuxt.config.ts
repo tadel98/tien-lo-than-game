@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
@@ -23,13 +25,13 @@ export default defineNuxtConfig({
   ssr: false,
   runtimeConfig: {
     // Private keys (only available on server-side)
-    jwtSecret: 'default-secret',
-    databaseUrl: '',
+    jwtSecret: process.env.JWT_SECRET || 'default-secret',
+    databaseUrl: process.env.DATABASE_URL || '',
     
     // Public keys (exposed to client-side)
     public: {
-      baseUrl: 'http://localhost:3000',
-      apiBaseUrl: 'http://localhost:3000/api'
+      baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api'
     }
   }
 })
