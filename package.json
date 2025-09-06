@@ -24,6 +24,7 @@
     "deploy:5h": "node scripts/auto-deploy.js",
     "deploy:custom": "node scripts/deploy-delayed.js",
     "start": "node .output/server/index.mjs",
+    "railway:start": "node .output/server/index.mjs",
     "deploy:railway": "railway up"
   },
   "dependencies": {

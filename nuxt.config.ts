@@ -49,7 +49,7 @@ export default defineNuxtConfig({
   build: {
     transpile: ['@prisma/client']
   },
-  ssr: false,
+  ssr: true,
   runtimeConfig: {
     // Private keys (only available on server-side)
     jwtSecret: process.env.JWT_SECRET || 'default-secret',
