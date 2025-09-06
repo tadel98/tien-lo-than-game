@@ -30,7 +30,8 @@ const lastSaveTime = computed(() => autoSaveStore.lastSaveTime)
 const saveError = computed(() => autoSaveStore.saveError)
 
 const showStatus = computed(() => {
-  return isSaving.value || lastSaveTime.value || saveError.value
+  // Chỉ hiển thị khi có lỗi, không hiển thị thông báo lưu thành công
+  return saveError.value
 })
 
 const formatTime = (date) => {

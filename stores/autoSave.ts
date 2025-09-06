@@ -84,11 +84,11 @@ export const useAutoSaveStore = defineStore('autoSave', () => {
       if (cultivationStore.cultivationStatus) {
         // Note: cultivation store doesn't have updateCultivationProgress method
         // This would need to be implemented in the cultivation store
-        console.log('Cultivation data save not implemented yet')
+        // console.log('Cultivation data save not implemented yet')
       }
 
       lastSaveTime.value = new Date()
-      console.log('Auto-save completed at:', lastSaveTime.value.toLocaleTimeString())
+      // console.log('Auto-save completed at:', lastSaveTime.value.toLocaleTimeString())
     } catch (err: any) {
       saveError.value = err.message
       console.error('Auto-save error:', err)
@@ -105,9 +105,9 @@ export const useAutoSaveStore = defineStore('autoSave', () => {
     if (!playerId) return
 
     try {
-      console.log('Saving data before logout...')
+      // console.log('Saving data before logout...')
       await savePlayerData(playerId)
-      console.log('Data saved successfully before logout')
+      // console.log('Data saved successfully before logout')
     } catch (err) {
       console.error('Error saving data before logout:', err)
     }

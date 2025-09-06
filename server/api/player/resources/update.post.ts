@@ -8,7 +8,7 @@ export default eventHandler(async (event) => {
     const body = await readBody(event)
     const { playerId, resourceName, amount, locked } = body
 
-    console.log('Update resource request:', { playerId, resourceName, amount, locked })
+    // console.log('Update resource request:', { playerId, resourceName, amount, locked })
 
     if (!playerId || !resourceName) {
       throw createError({
@@ -22,11 +22,11 @@ export default eventHandler(async (event) => {
       where: { name: resourceName }
     })
 
-    console.log('Found resource:', resource)
+    // console.log('Found resource:', resource)
 
     if (!resource) {
       // Tạo resource nếu chưa tồn tại
-      console.log('Creating resource:', resourceName)
+      // console.log('Creating resource:', resourceName)
       const newResource = await prisma.resource.create({
         data: {
           name: resourceName,
@@ -42,7 +42,7 @@ export default eventHandler(async (event) => {
                  resourceName === 'tien_ngoc_khoa' ? '#6b7280' : '#10b981'
         }
       })
-      console.log('Created resource:', newResource)
+      // console.log('Created resource:', newResource)
       
       // Sử dụng resource vừa tạo
       const updatedResource = await prisma.playerResource.upsert({
