@@ -75,6 +75,9 @@ export default eventHandler(async (event) => {
       where: { isActive: true }
     })
 
+    // Lấy thông tin player để kiểm tra level
+    const player = await prisma.player.findUnique({ where: { id: playerId } })
+    
     const availableQuests = allQuests.filter(quest => {
       const playerQuest = playerQuests.find(pq => pq.questId === quest.id)
       
@@ -82,7 +85,6 @@ export default eventHandler(async (event) => {
       if (!playerQuest) {
         try {
           const requirements = JSON.parse(quest.requirements || '{}')
-          const player = await prisma.player.findUnique({ where: { id: playerId } })
           
           if (player && player.level >= (requirements.level || 1)) {
             return true
