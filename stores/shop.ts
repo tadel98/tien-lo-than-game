@@ -63,12 +63,15 @@ export const useShopStore = defineStore('shop', () => {
 
       const response: any = await $fetch('/api/shop/purchase', {
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           playerId,
           shopId,
           itemId,
           quantity
-        }
+        })
       })
 
       // Refresh inventory after purchase
@@ -110,6 +113,65 @@ export const useShopStore = defineStore('shop', () => {
     return icons[itemType] || '📦'
   }
 
+  // Kiểm tra có thể mua item không
+  const canPurchaseItem = (item: any, playerLevel: number, playerResources: any[]) => {
+    // Kiểm tra cấp độ
+    if (playerLevel < item.level) {
+      return { canPurchase: false, reason: `Cần cấp độ ${item.level}` }
+    }
+
+    // Kiểm tra tài nguyên
+    const currencyResource = playerResources.find(r => r.name === item.currency)
+    if (!currencyResource || Number(currencyResource.amount) < item.price) {
+      return { canPurchase: false, reason: `Không đủ ${getCurrencyName(item.currency)}` }
+    }
+
+    // Kiểm tra stock
+    if (item.stock !== -1 && item.stock <= 0) {
+      return { canPurchase: false, reason: 'Hết hàng' }
+    }
+
+    return { canPurchase: true, reason: '' }
+  }
+
+  // Lấy tên tiền tệ
+  const getCurrencyName = (currency: string) => {
+    const currencies = {
+      tien_ngoc: 'Tiên Ngọc',
+      linh_thach: 'Linh Thạch',
+      nguyen_thach: 'Nguyên Thạch'
+    }
+    return currencies[currency] || currency
+  }
+
+  // Tính toán giá với giảm giá
+  const calculatePrice = (item: any, quantity: number = 1) => {
+    let totalPrice = item.price * quantity
+    
+    // Giảm giá theo số lượng
+    if (quantity >= 10) {
+      totalPrice *= 0.9 // Giảm 10%
+    } else if (quantity >= 5) {
+      totalPrice *= 0.95 // Giảm 5%
+    }
+    
+    return Math.floor(totalPrice)
+  }
+
+  // Lấy thông tin chi tiết trang bị
+  const getEquipmentStats = (item: any) => {
+    if (item.itemType !== 'equipment') return null
+    
+    return {
+      slot: item.equipmentSlot || 'unknown',
+      stats: item.stats || {},
+      durability: item.durability || 100,
+      maxDurability: item.maxDurability || 100,
+      enhancement: item.enhancement || 0,
+      maxEnhancement: item.maxEnhancement || 10
+    }
+  }
+
   // Reset store
   const reset = () => {
     shops.value = []
@@ -141,6 +203,10 @@ export const useShopStore = defineStore('shop', () => {
     setCurrentShop,
     getRarityColor,
     getItemTypeIcon,
+    canPurchaseItem,
+    getCurrencyName,
+    calculatePrice,
+    getEquipmentStats,
     reset
   }
 })

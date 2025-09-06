@@ -127,6 +127,23 @@
             </div>
           </div>
 
+          <!-- Equipment Stats -->
+          <div v-if="item.itemType === 'equipment'" class="mb-3">
+            <div class="text-sm text-game-text-secondary mb-2">Thống kê trang bị:</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div v-for="(value, stat) in item.stats" :key="stat" class="flex justify-between">
+                <span class="text-game-text-secondary">{{ getStatDisplayName(stat) }}:</span>
+                <span class="text-white font-semibold" :style="{ color: getStatColor(stat) }">
+                  +{{ value }}
+                </span>
+              </div>
+            </div>
+            <div class="mt-2 text-xs text-game-text-secondary">
+              Slot: {{ getSlotDisplayName(item.equipmentSlot) }} | Cấp: {{ item.level }}
+            </div>
+          </div>
+
+          <!-- Item Info -->
           <div class="mb-3">
             <div class="flex items-center justify-between">
               <span class="text-sm text-game-text-secondary">Số lượng:</span>
@@ -135,6 +152,10 @@
             <div v-if="item.stackable" class="flex items-center justify-between">
               <span class="text-sm text-game-text-secondary">Có thể xếp chồng:</span>
               <span class="text-sm text-green-400">✓</span>
+            </div>
+            <div v-if="item.itemType === 'equipment'" class="flex items-center justify-between">
+              <span class="text-sm text-game-text-secondary">Độ bền:</span>
+              <span class="text-sm text-white">{{ item.durability || 100 }}/{{ item.maxDurability || 100 }}</span>
             </div>
           </div>
 
@@ -164,6 +185,7 @@
 const authStore = useAuthStore()
 const playerStore = usePlayerStore()
 const shopStore = useShopStore()
+const characterStore = useCharacterStore()
 
 // Computed
 const isAuthenticated = computed(() => authStore.isLoggedIn)
@@ -212,6 +234,27 @@ const getResourceAmount = (resourceName) => {
 
 const getItemTypeIcon = (itemType) => shopStore.getItemTypeIcon(itemType)
 
+const getStatDisplayName = (stat) => {
+  const stats = {
+    hp: 'HP',
+    mp: 'MP',
+    attack: 'Tấn Công',
+    defense: 'Phòng Thủ',
+    speed: 'Tốc Độ',
+    luck: 'May Mắn',
+    wisdom: 'Trí Tuệ',
+    strength: 'Sức Mạnh',
+    agility: 'Nhanh Nhẹn',
+    vitality: 'Sinh Lực',
+    spirit: 'Tinh Thần'
+  }
+  return stats[stat] || stat
+}
+
+const getStatColor = (stat) => characterStore.getStatColor(stat)
+
+const getSlotDisplayName = (slot) => characterStore.getSlotDisplayName(slot)
+
 const getItemTypeName = (itemType) => {
   const types = {
     equipment: 'Trang Bị',
@@ -231,20 +274,44 @@ const getItemCount = (itemType) => {
 }
 
 const canUseItem = (item) => {
-  // Logic để kiểm tra có thể sử dụng item không
-  return item.itemType === 'consumable' || item.itemType === 'equipment'
+  if (item.itemType === 'consumable') {
+    return true
+  }
+  
+  if (item.itemType === 'equipment') {
+    const equipCheck = characterStore.canEquipItem(item, player.value?.level || 0)
+    return equipCheck.canEquip
+  }
+  
+  return false
+}
+
+const getUseItemReason = (item) => {
+  if (item.itemType === 'equipment') {
+    const equipCheck = characterStore.canEquipItem(item, player.value?.level || 0)
+    return equipCheck.reason
+  }
+  return ''
 }
 
 const useItem = async (item) => {
   if (!canUseItem(item)) return
   
   try {
-    // Logic sử dụng item
-    console.log(`Sử dụng ${item.name}`)
+    if (item.itemType === 'equipment') {
+      // Trang bị item
+      await characterStore.equipItem(player.value.id, item.id)
+      console.log(`Trang bị ${item.name}`)
+    } else if (item.itemType === 'consumable') {
+      // Sử dụng consumable
+      console.log(`Sử dụng ${item.name}`)
+      // TODO: Implement consumable logic
+    }
     
-    // Refresh inventory
+    // Refresh inventory and character data
     if (player.value?.id) {
       await shopStore.fetchInventory(player.value.id)
+      await characterStore.fetchCharacterData(player.value.id)
     }
   } catch (err) {
     console.error('Lỗi sử dụng item:', err)

@@ -27,6 +27,58 @@ export const useCharacterStore = defineStore('character', () => {
     return equipment.value.filter(item => item.isEquipped)
   })
 
+  // Lấy trang bị theo slot
+  const getEquippedItemBySlot = (slot: string) => {
+    return equipment.value.find(item => item.isEquipped && item.equipmentSlot === slot)
+  }
+
+  // Tính toán stats từ trang bị
+  const equipmentStats = computed(() => {
+    const stats = {
+      hp: 0,
+      mp: 0,
+      attack: 0,
+      defense: 0,
+      speed: 0,
+      luck: 0,
+      wisdom: 0,
+      strength: 0,
+      agility: 0,
+      vitality: 0,
+      spirit: 0
+    }
+
+    equippedItems.value.forEach(item => {
+      if (item.stats) {
+        Object.keys(item.stats).forEach(stat => {
+          if (stats.hasOwnProperty(stat)) {
+            stats[stat] += item.stats[stat] || 0
+          }
+        })
+      }
+    })
+
+    return stats
+  })
+
+  // Tính toán combat power từ trang bị
+  const equipmentCombatPower = computed(() => {
+    const eqStats = equipmentStats.value
+    return Math.floor(
+      (eqStats.attack * 2) +
+      (eqStats.defense * 1.5) +
+      (eqStats.speed * 1.2) +
+      (eqStats.hp * 0.1) +
+      (eqStats.mp * 0.05) +
+      (eqStats.strength * 1.8) +
+      (eqStats.agility * 1.3) +
+      (eqStats.vitality * 1.5) +
+      (eqStats.spirit * 1.1) +
+      (eqStats.wisdom * 1.4) +
+      (eqStats.luck * 0.8)
+    )
+  })
+
   const learnedSkills = computed(() => {
     return skills.value.filter(skill => skill.isLearned)
   })
@@ -208,6 +260,64 @@ export const useCharacterStore = defineStore('character', () => {
     return colors[category] || '#6b7280'
   }
 
+  // Kiểm tra có thể trang bị item không
+  const canEquipItem = (item: any, playerLevel: number) => {
+    // Kiểm tra cấp độ
+    if (playerLevel < item.level) {
+      return { canEquip: false, reason: `Cần cấp độ ${item.level}` }
+    }
+
+    // Kiểm tra slot
+    if (!item.equipmentSlot) {
+      return { canEquip: false, reason: 'Item không có slot trang bị' }
+    }
+
+    // Kiểm tra đã trang bị slot này chưa
+    const currentEquipped = getEquippedItemBySlot(item.equipmentSlot)
+    if (currentEquipped) {
+      return { canEquip: true, reason: `Sẽ thay thế ${currentEquipped.name}` }
+    }
+
+    return { canEquip: true, reason: '' }
+  }
+
+  // Lấy tên slot trang bị
+  const getSlotDisplayName = (slot: string) => {
+    const slots = {
+      weapon: 'Vũ Khí',
+      armor: 'Áo Giáp',
+      helmet: 'Mũ',
+      boots: 'Giày',
+      gloves: 'Găng Tay',
+      ring: 'Nhẫn',
+      necklace: 'Dây Chuyền',
+      belt: 'Thắt Lưng',
+      shield: 'Khiên',
+      accessory: 'Phụ Kiện'
+    }
+    return slots[slot] || slot
+  }
+
+  // Tính toán tổng stats (base + equipment)
+  const totalStatsWithEquipment = computed(() => {
+    const base = baseStats.value
+    const equipment = equipmentStats.value
+    
+    return {
+      hp: (base.hp || 0) + equipment.hp,
+      mp: (base.mp || 0) + equipment.mp,
+      attack: (base.attack || 0) + equipment.attack,
+      defense: (base.defense || 0) + equipment.defense,
+      speed: (base.speed || 0) + equipment.speed,
+      luck: (base.luck || 0) + equipment.luck,
+      wisdom: (base.wisdom || 0) + equipment.wisdom,
+      strength: (base.strength || 0) + equipment.strength,
+      agility: (base.agility || 0) + equipment.agility,
+      vitality: (base.vitality || 0) + equipment.vitality,
+      spirit: (base.spirit || 0) + equipment.spirit
+    }
+  })
+
   // Reset store
   const reset = () => {
     characterData.value = null
@@ -233,6 +343,10 @@ export const useCharacterStore = defineStore('character', () => {
     baseStats,
     equippedItems,
     learnedSkills,
+    getEquippedItemBySlot,
+    equipmentStats,
+    equipmentCombatPower,
+    totalStatsWithEquipment,
 
     // Actions
     fetchCharacterData,
@@ -240,6 +354,8 @@ export const useCharacterStore = defineStore('character', () => {
     equipItem,
     unequipItem,
     learnSkill,
+    canEquipItem,
+    getSlotDisplayName,
     getStatColor,
     getRarityColor,
     getSkillCategoryColor,

@@ -150,10 +150,30 @@
 
                 <p class="text-sm text-game-text-secondary mb-3">{{ item.description }}</p>
 
+                <!-- Equipment Stats -->
+                <div v-if="item.itemType === 'equipment'" class="mb-3">
+                  <div class="text-sm text-game-text-secondary mb-2">Thống kê trang bị:</div>
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div v-for="(value, stat) in item.stats" :key="stat" class="flex justify-between">
+                      <span class="text-game-text-secondary">{{ getStatDisplayName(stat) }}:</span>
+                      <span class="text-white font-semibold" :style="{ color: getStatColor(stat) }">
+                        +{{ value }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mt-2 text-xs text-game-text-secondary">
+                    Slot: {{ getSlotDisplayName(item.equipmentSlot) }}
+                  </div>
+                </div>
+
+                <!-- Price and Purchase -->
                 <div class="flex items-center justify-between">
                   <div class="flex items-center space-x-2">
-                    <span class="text-yellow-400 font-semibold">{{ item.price.toLocaleString() }}</span>
+                    <span class="text-yellow-400 font-semibold">{{ calculatePrice(item, purchaseQuantities[item.id] || 1).toLocaleString() }}</span>
                     <span class="text-sm text-game-text-secondary">{{ getCurrencyName(item.currency) }}</span>
+                    <span v-if="purchaseQuantities[item.id] > 1" class="text-xs text-green-400">
+                      ({{ item.price.toLocaleString() }} × {{ purchaseQuantities[item.id] }})
+                    </span>
                   </div>
                   
                   <div class="flex items-center space-x-2">
@@ -174,6 +194,11 @@
                   </div>
                 </div>
 
+                <!-- Purchase Reason -->
+                <div v-if="!canPurchase(item)" class="mt-2 text-xs text-red-400">
+                  {{ getPurchaseReason(item) }}
+                </div>
+
                 <div v-if="item.stock !== -1" class="text-xs text-game-text-secondary mt-2">
                   Còn lại: {{ item.stock }}
                 </div>
@@ -191,6 +216,7 @@
 const authStore = useAuthStore()
 const playerStore = usePlayerStore()
 const shopStore = useShopStore()
+const characterStore = useCharacterStore()
 
 // Computed
 const isAuthenticated = computed(() => authStore.isLoggedIn)
@@ -232,14 +258,30 @@ const getCategoryDisplayName = (category) => {
   return cat ? cat.displayName : category
 }
 
-const getCurrencyName = (currency) => {
-  const currencies = {
-    tien_ngoc: 'Tiên Ngọc',
-    linh_thach: 'Linh Thạch',
-    nguyen_thach: 'Nguyên Thạch'
+const getCurrencyName = (currency) => shopStore.getCurrencyName(currency)
+
+const calculatePrice = (item, quantity) => shopStore.calculatePrice(item, quantity)
+
+const getStatDisplayName = (stat) => {
+  const stats = {
+    hp: 'HP',
+    mp: 'MP',
+    attack: 'Tấn Công',
+    defense: 'Phòng Thủ',
+    speed: 'Tốc Độ',
+    luck: 'May Mắn',
+    wisdom: 'Trí Tuệ',
+    strength: 'Sức Mạnh',
+    agility: 'Nhanh Nhẹn',
+    vitality: 'Sinh Lực',
+    spirit: 'Tinh Thần'
   }
-  return currencies[currency] || currency
+  return stats[stat] || stat
 }
+
+const getStatColor = (stat) => characterStore.getStatColor(stat)
+
+const getSlotDisplayName = (slot) => characterStore.getSlotDisplayName(slot)
 
 const getRarityColor = (rarity) => shopStore.getRarityColor(rarity)
 const getItemTypeIcon = (itemType) => shopStore.getItemTypeIcon(itemType)
@@ -254,14 +296,25 @@ const enterShop = (shop) => {
 
 const canPurchase = (item) => {
   const quantity = purchaseQuantities.value[item.id] || 1
-  const totalCost = item.price * quantity
+  const purchaseCheck = shopStore.canPurchaseItem(item, player.value?.level || 0, resources.value)
   
-  const currencyResource = playerStore.getResourceByName(item.currency)
-  if (!currencyResource) return false
+  return purchaseCheck.canPurchase && 
+         (item.stock === -1 || item.stock >= quantity)
+}
+
+const getPurchaseReason = (item) => {
+  const quantity = purchaseQuantities.value[item.id] || 1
+  const purchaseCheck = shopStore.canPurchaseItem(item, player.value?.level || 0, resources.value)
   
-  return Number(currencyResource.amount) >= totalCost && 
-         (item.stock === -1 || item.stock >= quantity) &&
-         player.value.level >= item.level
+  if (!purchaseCheck.canPurchase) {
+    return purchaseCheck.reason
+  }
+  
+  if (item.stock !== -1 && item.stock < quantity) {
+    return 'Không đủ hàng'
+  }
+  
+  return ''
 }
 
 const purchaseItem = async (item) => {
