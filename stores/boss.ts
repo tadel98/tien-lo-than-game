@@ -221,10 +221,10 @@ export const useBossStore = defineStore('boss', () => {
   }
 
   const processRewards = (rewards: any) => {
-    const droppedItems = []
+    const droppedItems: { id: any; name: any; rarity: any; quantity: number }[] = []
     
     // Xử lý drop items
-    rewards.items.forEach(item => {
+    rewards.items.forEach((item: { id: any; name: any; rarity: any; dropRate: number }) => {
       if (Math.random() < item.dropRate) {
         droppedItems.push({
           id: item.id,
