@@ -40,8 +40,8 @@ export default eventHandler(async (event) => {
             isLearned: true
           }
         }
-      } as any
-    }) as any
+      }
+    })
 
     if (!player) {
       throw createError({

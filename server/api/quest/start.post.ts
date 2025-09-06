@@ -16,7 +16,7 @@ export default eventHandler(async (event) => {
     }
 
     // Kiểm tra nhiệm vụ có tồn tại không
-    const quest = await (prisma as any).quest.findUnique({
+    const quest = await prisma.quest.findUnique({
       where: { id: questId }
     })
 
@@ -28,7 +28,7 @@ export default eventHandler(async (event) => {
     }
 
     // Kiểm tra người chơi có đủ level không
-    const player = await (prisma as any).player.findUnique({
+    const player = await prisma.player.findUnique({
       where: { id: playerId }
     })
 
@@ -39,15 +39,24 @@ export default eventHandler(async (event) => {
       })
     }
 
-    if (player.level < quest.level) {
+    // Parse requirements để kiểm tra level
+    let requiredLevel = 1
+    try {
+      const requirements = JSON.parse(quest.requirements || '{}')
+      requiredLevel = requirements.level || 1
+    } catch (e) {
+      console.error('Error parsing quest requirements:', e)
+    }
+
+    if (player.level < requiredLevel) {
       throw createError({
         statusCode: 400,
-        statusMessage: `Cần level ${quest.level} để nhận nhiệm vụ này`
+        statusMessage: `Cần level ${requiredLevel} để nhận nhiệm vụ này`
       })
     }
 
     // Kiểm tra nhiệm vụ đã được nhận chưa
-    const existingPlayerQuest = await (prisma as any).playerQuest.findFirst({
+    const existingPlayerQuest = await prisma.playerQuest.findFirst({
       where: {
         playerId,
         questId
@@ -70,7 +79,7 @@ export default eventHandler(async (event) => {
     }
 
     // Bắt đầu nhiệm vụ
-    const playerQuest = await (prisma as any).playerQuest.upsert({
+    const playerQuest = await prisma.playerQuest.upsert({
       where: {
         playerId_questId: {
           playerId,

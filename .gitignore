@@ -100,3 +100,4 @@ Thumbs.db
 
 # Prisma
 prisma/dev.db
+.vercel

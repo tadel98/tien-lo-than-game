@@ -16,7 +16,7 @@ export default eventHandler(async (event) => {
     }
 
     // Kiểm tra người chơi tồn tại
-    const player = await (prisma as any).player.findUnique({
+    const player = await prisma.player.findUnique({
       where: { id: playerId }
     })
 
@@ -28,7 +28,7 @@ export default eventHandler(async (event) => {
     }
 
     // Cập nhật hoặc tạo stats
-    const updatedStats = await (prisma as any).playerStats.upsert({
+    const updatedStats = await prisma.playerStats.upsert({
       where: { playerId },
       update: stats,
       create: {
