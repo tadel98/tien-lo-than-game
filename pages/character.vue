@@ -37,6 +37,7 @@
 
           <!-- Nút chức năng -->
           <div class="flex items-center space-x-2">
+            <SaveButton />
             <NuxtLink to="/" class="game-button px-6 py-2 rounded-lg text-white font-semibold">
               🏠 Trang Chủ
             </NuxtLink>

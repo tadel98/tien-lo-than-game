@@ -14,6 +14,7 @@ type HydrationStrategies = {
 type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}, {}, {}, { hydrated: () => void }>)
 
 
+export const AutoSaveStatus: typeof import("../components/AutoSaveStatus.vue")['default']
 export const CharacterPanel: typeof import("../components/CharacterPanel.vue")['default']
 export const CultivationPanel: typeof import("../components/CultivationPanel.vue")['default']
 export const HomeButton: typeof import("../components/HomeButton.vue")['default']
@@ -21,6 +22,7 @@ export const LoginForm: typeof import("../components/LoginForm.vue")['default']
 export const QuestPanel: typeof import("../components/QuestPanel.vue")['default']
 export const QuestTimer: typeof import("../components/QuestTimer.vue")['default']
 export const RankingWidget: typeof import("../components/RankingWidget.vue")['default']
+export const SaveButton: typeof import("../components/SaveButton.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
 export const NuxtLayout: typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
 export const NuxtErrorBoundary: typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']
@@ -45,6 +47,7 @@ export const Html: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/components")['Body']
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const NuxtRouteAnnouncer: typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']
+export const LazyAutoSaveStatus: LazyComponent<typeof import("../components/AutoSaveStatus.vue")['default']>
 export const LazyCharacterPanel: LazyComponent<typeof import("../components/CharacterPanel.vue")['default']>
 export const LazyCultivationPanel: LazyComponent<typeof import("../components/CultivationPanel.vue")['default']>
 export const LazyHomeButton: LazyComponent<typeof import("../components/HomeButton.vue")['default']>
@@ -52,6 +55,7 @@ export const LazyLoginForm: LazyComponent<typeof import("../components/LoginForm
 export const LazyQuestPanel: LazyComponent<typeof import("../components/QuestPanel.vue")['default']>
 export const LazyQuestTimer: LazyComponent<typeof import("../components/QuestTimer.vue")['default']>
 export const LazyRankingWidget: LazyComponent<typeof import("../components/RankingWidget.vue")['default']>
+export const LazySaveButton: LazyComponent<typeof import("../components/SaveButton.vue")['default']>
 export const LazyNuxtWelcome: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
 export const LazyNuxtLayout: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
 export const LazyNuxtErrorBoundary: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']>

@@ -40,6 +40,13 @@ export const useAuthStore = defineStore('auth', () => {
           localStorage.setItem('user_data', JSON.stringify(response.user))
         }
 
+        // Start auto-save
+        const autoSaveStore = useAutoSaveStore()
+        if (response.user?.player?.id) {
+          autoSaveStore.startAutoSave(response.user.player.id)
+          autoSaveStore.setupAutoSave(response.user.player.id)
+        }
+
         return response
       }
     } catch (err: any) {
@@ -80,6 +87,13 @@ export const useAuthStore = defineStore('auth', () => {
           localStorage.setItem('user_data', JSON.stringify(response.user))
         }
 
+        // Start auto-save
+        const autoSaveStore = useAutoSaveStore()
+        if (response.user?.player?.id) {
+          autoSaveStore.startAutoSave(response.user.player.id)
+          autoSaveStore.setupAutoSave(response.user.player.id)
+        }
+
         return response
       }
     } catch (err: any) {
@@ -91,16 +105,58 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const logout = () => {
-    user.value = null
-    token.value = null
-    isAuthenticated.value = false
-    error.value = null
+  const logout = async () => {
+    try {
+      // Save data before logout
+      const autoSaveStore = useAutoSaveStore()
+      if (user.value?.player?.id) {
+        await autoSaveStore.saveBeforeLogout(user.value.player.id)
+      }
 
-    // Clear localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user_data')
+      // Stop auto-save
+      autoSaveStore.stopAutoSave()
+
+      // Reset all stores
+      const playerStore = usePlayerStore()
+      const characterStore = useCharacterStore()
+      const cultivationStore = useCultivationStore()
+      const questStore = useQuestStore()
+      const spiritBeastStore = useSpiritBeastStore()
+      const talentStore = useTalentStore()
+
+      playerStore.reset()
+      characterStore.reset()
+      cultivationStore.reset()
+      questStore.reset()
+      spiritBeastStore.reset()
+      talentStore.reset()
+      autoSaveStore.reset()
+
+      // Clear auth data
+      user.value = null
+      token.value = null
+      isAuthenticated.value = false
+      error.value = null
+
+      // Clear localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('user_data')
+      }
+
+      console.log('Logout completed successfully')
+    } catch (err) {
+      console.error('Error during logout:', err)
+      // Still clear data even if save fails
+      user.value = null
+      token.value = null
+      isAuthenticated.value = false
+      error.value = null
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('user_data')
+      }
     }
   }
 
@@ -114,6 +170,13 @@ export const useAuthStore = defineStore('auth', () => {
           token.value = storedToken
           user.value = JSON.parse(storedUser)
           isAuthenticated.value = true
+
+          // Start auto-save if user has player data
+          const autoSaveStore = useAutoSaveStore()
+          if (user.value?.player?.id) {
+            autoSaveStore.startAutoSave(user.value.player.id)
+            autoSaveStore.setupAutoSave(user.value.player.id)
+          }
         } catch (err) {
           console.error('Error parsing stored user data:', err)
           logout()
