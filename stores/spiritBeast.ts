@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-// Type declarations for Nuxt 3 globals
-declare global {
-  const $fetch: typeof fetch
-}
+// $fetch is already available in Nuxt 3, no need to declare
 
 export const useSpiritBeastStore = defineStore('spiritBeast', () => {
   // State
