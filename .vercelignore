@@ -1,8 +1,73 @@
-node_modules
-.nuxt
-.output
-.vercel
-.vercel/output
-*.log
+# Development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
 .DS_Store
-node_modules/@prisma/client
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test files
+test-results/
+playwright-report/
+playwright/.cache/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Scripts
+scripts/
+*.sh
+*.bat
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Build artifacts
+*.tsbuildinfo
+dist/
+build/
+
+# Lock files (keep package-lock.json)
+yarn.lock
+pnpm-lock.yaml
+
+# Prisma migrations (keep schema but ignore migrations)
+prisma/migrations/
+
+# Git
+.git/
+.gitignore
+
+# Node modules (should not be deployed anyway)
+node_modules/
+
+# Nuxt build cache
+.nuxt/

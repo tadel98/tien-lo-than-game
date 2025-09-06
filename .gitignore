@@ -170,3 +170,43 @@ jspm_packages/
 
 # Prisma
 prisma/migrations/
+
+# Vercel
+.vercel
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test files
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Build artifacts
+*.tsbuildinfo
+*.log
+*.tmp
+*.temp
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Local development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
