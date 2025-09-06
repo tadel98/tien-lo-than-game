@@ -123,7 +123,7 @@ export const useCultivationStore = defineStore('cultivation', () => {
       loading.value = true
       error.value = null
       
-      const response = await $fetch(`/api/cultivation/status?playerId=${playerId}`)
+      const response: any = await $fetch(`/api/cultivation/status?playerId=${playerId}`)
       
       if (response.success && response.data.cultivation) {
         const data = response.data.cultivation
@@ -152,10 +152,13 @@ export const useCultivationStore = defineStore('cultivation', () => {
       // Cập nhật player level và realm
       await $fetch('/api/player/update', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           playerId,
           level: newLevel,
           realm: realmName
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
       
@@ -180,11 +183,14 @@ export const useCultivationStore = defineStore('cultivation', () => {
         hasAscended: hasAscended.value
       }
 
-      const response = await $fetch('/api/cultivation/update', {
+      const response: any = await $fetch('/api/cultivation/update', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           playerId,
           cultivationData
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
       
