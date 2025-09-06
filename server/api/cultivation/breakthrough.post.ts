@@ -46,24 +46,7 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Kiểm tra tài nguyên cần thiết
-    const breakthroughCost = calculateBreakthroughCost(currentLevel)
-    const tienNgocResource = player.resources.find(r => r.resource.name === 'tien_ngoc')
-    const linhThachResource = player.resources.find(r => r.resource.name === 'linh_thach')
-
-    if (!tienNgocResource || Number(tienNgocResource.amount) < breakthroughCost.tienNgoc) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Không đủ Tiên Ngọc để đột phá'
-      })
-    }
-
-    if (!linhThachResource || Number(linhThachResource.amount) < breakthroughCost.linhThach) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Không đủ Linh Thạch để đột phá'
-      })
-    }
+    // Bỏ điều kiện tài nguyên - chỉ cần đủ EXP
 
     // Thực hiện đột phá
     const newLevel = currentLevel + 1
@@ -164,21 +147,7 @@ export default eventHandler(async (event) => {
       console.error('Error updating combat power after breakthrough:', err)
     }
 
-    // Trừ tài nguyên
-    // Trừ Tiên Ngọc
-    await prisma.playerResource.update({
-      where: { id: tienNgocResource.id },
-      data: {
-        amount: Number(tienNgocResource.amount) - breakthroughCost.tienNgoc
-      }
-    })
-
-    await prisma.playerResource.update({
-      where: { id: linhThachResource.id },
-      data: {
-        amount: Number(linhThachResource.amount) - breakthroughCost.linhThach
-      }
-    })
+    // Không trừ tài nguyên - breakthrough miễn phí
 
     // Thưởng đột phá
     const rewards = calculateBreakthroughRewards(newLevel)
@@ -208,7 +177,7 @@ export default eventHandler(async (event) => {
 
     return {
       success: true,
-      message: 'Đột phá thành công!',
+      message: 'Đột phá thành công! (Miễn phí)',
       data: {
         player: {
           ...updatedPlayer,
@@ -220,7 +189,11 @@ export default eventHandler(async (event) => {
           oldRealm,
           newRealm,
           isRealmChange: oldRealm !== newRealm,
-          rewards
+          rewards,
+          cost: {
+            tienNgoc: 0,
+            linhThach: 0
+          }
         }
       }
     }
