@@ -57,10 +57,13 @@ export const useCharacterStore = defineStore('character', () => {
 
       const response: any = await $fetch('/api/character/stats/update', {
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           playerId,
           stats: newStats
-        }
+        })
       })
 
       // Cập nhật local state
@@ -85,9 +88,12 @@ export const useCharacterStore = defineStore('character', () => {
 
       const response: any = await $fetch('/api/character/equipment/equip', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           playerId,
           equipmentId
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 
@@ -111,9 +117,12 @@ export const useCharacterStore = defineStore('character', () => {
 
       const response: any = await $fetch('/api/character/equipment/unequip', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           playerId,
           equipmentId
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 
@@ -137,9 +146,12 @@ export const useCharacterStore = defineStore('character', () => {
 
       const response: any = await $fetch('/api/character/skills/learn', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           playerId,
           skillId
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 

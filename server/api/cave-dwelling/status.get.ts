@@ -82,7 +82,7 @@ function calculateUpgradeCost(level: number) {
   const baseCost = {
     linhThach: 1000,
     nguyenThach: 500,
-    huyenLuc: 200
+    tienNgoc: 200
   }
   
   const multiplier = Math.pow(1.5, level - 1)
@@ -90,7 +90,7 @@ function calculateUpgradeCost(level: number) {
   return {
     linhThach: Math.floor(baseCost.linhThach * multiplier),
     nguyenThach: Math.floor(baseCost.nguyenThach * multiplier),
-    huyenLuc: Math.floor(baseCost.huyenLuc * multiplier)
+    tienNgoc: Math.floor(baseCost.tienNgoc * multiplier)
   }
 }
 

@@ -16,13 +16,16 @@
               Hoàn thành nhiệm vụ để nhận EXP và tài nguyên
             </div>
           </div>
-          <button 
-            @click="refreshQuests"
-            :disabled="loading"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg transition-colors"
-          >
-            {{ loading ? 'Đang tải...' : '🔄 Làm mới' }}
-          </button>
+          <div class="flex items-center space-x-3">
+            <HomeButton />
+            <button 
+              @click="refreshQuests"
+              :disabled="loading"
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              {{ loading ? 'Đang tải...' : '🔄 Làm mới' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -312,11 +315,17 @@ const questTabs = ref([
 const isAuthenticated = computed(() => authStore.isLoggedIn)
 const player = computed(() => playerStore.player)
 const loading = computed(() => questStore.loading)
-const availableQuests = computed(() => questStore.availableQuests)
-const inProgressQuests = computed(() => questStore.inProgressQuests)
-const completedQuests = computed(() => questStore.completedQuests)
-const repeatableQuests = computed(() => questStore.quests.filter(quest => quest.isRepeatable && quest.playerStatus.status === 'available'))
-const cooldownQuests = computed(() => questStore.quests.filter(quest => quest.playerStatus.status === 'cooldown'))
+const availableQuests = computed(() => questStore.availableQuests || [])
+const inProgressQuests = computed(() => questStore.inProgressQuests || [])
+const completedQuests = computed(() => questStore.completedQuests || [])
+const repeatableQuests = computed(() => {
+  const quests = Array.isArray(questStore.quests) ? questStore.quests : []
+  return quests.filter(quest => quest.isRepeatable && quest.playerStatus?.status === 'available')
+})
+const cooldownQuests = computed(() => {
+  const quests = Array.isArray(questStore.quests) ? questStore.quests : []
+  return quests.filter(quest => quest.playerStatus?.status === 'cooldown')
+})
 
 const getCurrentQuests = computed(() => {
   switch (activeTab.value) {

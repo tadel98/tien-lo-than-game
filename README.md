@@ -6,7 +6,7 @@ Một web game tu luyện với giao diện đẹp mắt được xây dựng b�
 
 - **Hệ thống đăng nhập/đăng ký** với JWT authentication
 - **Quản lý người chơi** với thông tin cấp độ, cảnh giới
-- **Hệ thống tài nguyên** (Tiên Ngọc, Linh Thạch, Nguyên Thạch, Huyền Lực)
+- **Hệ thống tài nguyên** (Tiên Ngọc, Linh Thạch, Nguyên Thạch)
 - **Bạn đồng hành** với các loại hiếm khác nhau
 - **Thành tựu** và hệ thống phần thưởng
 - **Nhiệm vụ** với các yêu cầu và phần thưởng

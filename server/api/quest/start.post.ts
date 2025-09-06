@@ -146,7 +146,7 @@ export default eventHandler(async (event) => {
           repeatInterval: quest.repeatInterval,
           playerStatus: {
             status: playerQuest.status,
-            progress: JSON.parse(playerQuest.progress),
+            progress: playerQuest.progress ? JSON.parse(playerQuest.progress) : {},
             startedAt: playerQuest.startedAt?.toISOString(),
             completedAt: playerQuest.completedAt?.toISOString()
           }

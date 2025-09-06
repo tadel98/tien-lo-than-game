@@ -24,7 +24,8 @@ export default eventHandler(async (event) => {
         questId
       },
       include: {
-        quest: true
+        quest: true,
+        player: true
       }
     })
 
@@ -65,7 +66,7 @@ export default eventHandler(async (event) => {
     })
 
     // Phân tích và áp dụng phần thưởng
-    let rewards = {}
+    let rewards: any = {}
     let levelUp = false
     let newLevel = 0
 
@@ -105,7 +106,7 @@ export default eventHandler(async (event) => {
     }
 
     // Cập nhật tài nguyên
-    if (rewards.resources) {
+    if (rewards.resources && typeof rewards.resources === 'object') {
       for (const [resourceName, amount] of Object.entries(rewards.resources)) {
         const resource = await prisma.resource.findFirst({
           where: { name: resourceName }
@@ -152,7 +153,7 @@ export default eventHandler(async (event) => {
           repeatInterval: quest.repeatInterval,
           playerStatus: {
             status: updateData.status,
-            progress: JSON.parse(playerQuest.progress),
+            progress: JSON.parse(playerQuest.progress || '{}'),
             startedAt: playerQuest.startedAt?.toISOString(),
             completedAt: updateData.completedAt?.toISOString(),
             cooldownUntil: updateData.cooldownUntil?.toISOString()

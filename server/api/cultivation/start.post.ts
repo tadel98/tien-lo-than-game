@@ -34,20 +34,20 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Kiểm tra Sức Mạnh Chiến Đấu (Huyền Lực)
-    const huyenLucResource = player.resources.find(r => r.resource.name === 'huyen_luc')
-    const huyenLucAmount = huyenLucResource ? Number(huyenLucResource.amount) : 0
+    // Kiểm tra Linh Thạch để tu luyện
+    const linhThachResource = player.resources.find(r => r.resource.name === 'linh_thach')
+    const linhThachAmount = linhThachResource ? Number(linhThachResource.amount) : 0
 
-    if (huyenLucAmount < 100) {
+    if (linhThachAmount < 100) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Không đủ Sức Mạnh Chiến Đấu để tu luyện (cần ít nhất 100)'
+        statusMessage: 'Không đủ Linh Thạch để tu luyện (cần ít nhất 100)'
       })
     }
 
     // Tính toán kinh nghiệm và tài nguyên
     const experienceGain = calculateExperienceGain(player.level, cultivationType)
-    const resourceCost = calculateResourceCost(cultivationType) // Bao gồm Sức Mạnh Chiến Đấu (Huyền Lực)
+    const resourceCost = calculateResourceCost(cultivationType) // Bao gồm Linh Thạch
     const newExperience = BigInt(player.experience) + BigInt(experienceGain)
 
     // Cập nhật người chơi
@@ -60,12 +60,12 @@ export default eventHandler(async (event) => {
     })
 
     // Trừ tài nguyên
-    if (huyenLucResource) {
-      // Trừ Sức Mạnh Chiến Đấu (Huyền Lực)
+    if (linhThachResource) {
+      // Trừ Linh Thạch
       await prisma.playerResource.update({
-        where: { id: huyenLucResource.id },
+        where: { id: linhThachResource.id },
         data: {
-          amount: Number(huyenLucResource.amount) - resourceCost.huyenLuc
+          amount: Number(linhThachResource.amount) - resourceCost.linhThach
         }
       })
     }
@@ -131,15 +131,15 @@ function calculateExperienceGain(level: number, cultivationType: string): number
 function calculateResourceCost(cultivationType: string) {
   const costs = {
     basic: {
-      huyenLuc: 100, // Sức Mạnh Chiến Đấu (Huyền Lực)
+      linhThach: 100, // Linh Thạch
       rewards: {
-        linh_thach: 50
+        tien_ngoc: 10
       }
     },
     advanced: {
-      huyenLuc: 500, // Sức Mạnh Chiến Đấu (Huyền Lực)
+      linhThach: 500, // Linh Thạch
       rewards: {
-        linh_thach: 200,
+        tien_ngoc: 50,
         nguyen_thach: 100
       }
     }

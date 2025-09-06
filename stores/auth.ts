@@ -20,9 +20,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       const response: any = await $fetch('/api/auth/login', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           username,
           password
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 
@@ -32,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated.value = true
 
         // Save to localStorage
-        if (process.client) {
+        if (typeof window !== 'undefined') {
           localStorage.setItem('auth_token', response.token)
           localStorage.setItem('user_data', JSON.stringify(response.user))
         }
@@ -55,11 +58,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       const response: any = await $fetch('/api/auth/register', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           username,
           email,
           password,
           playerName
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 
@@ -69,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated.value = true
 
         // Save to localStorage
-        if (process.client) {
+        if (typeof window !== 'undefined') {
           localStorage.setItem('auth_token', response.token)
           localStorage.setItem('user_data', JSON.stringify(response.user))
         }
@@ -92,14 +98,14 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     // Clear localStorage
-    if (process.client) {
+    if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token')
       localStorage.removeItem('user_data')
     }
   }
 
   const checkAuth = () => {
-    if (process.client) {
+    if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem('auth_token')
       const storedUser = localStorage.getItem('user_data')
 

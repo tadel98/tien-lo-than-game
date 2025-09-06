@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
+// Declare $fetch as global
+declare const $fetch: any
+
 export const useCultivationStore = defineStore('cultivation', () => {
   // State
   const cultivationStatus = ref<any>(null)
   const isCultivating = ref(false)
   const loading = ref(false)
   const error = ref(null)
-  const autoCultivation = ref(false)
-  const autoCultivationInterval = ref<any>(null)
 
   // Getters
   const canCultivate = computed(() => {
@@ -132,81 +133,9 @@ export const useCultivationStore = defineStore('cultivation', () => {
     return realmColors[realm] || '#6b7280'
   }
 
-  // Auto cultivation methods
-  const startAutoCultivation = (playerId: string, cultivationType: string = 'basic') => {
-    console.log('🎯 Starting auto cultivation with playerId:', playerId)
-    
-    if (autoCultivationInterval.value) {
-      clearInterval(autoCultivationInterval.value)
-    }
-    
-    autoCultivation.value = true
-    
-    autoCultivationInterval.value = setInterval(async () => {
-      if (!autoCultivation.value) {
-        stopAutoCultivation()
-        return
-      }
-      
-      try {
-        console.log('🔄 Auto cultivating for player:', playerId)
-        // Gọi API tu luyện tự động
-        const response: any = await $fetch('/api/cultivation/auto-cultivate', {
-          method: 'POST',
-          body: {
-            playerId,
-            expGain: 1000
-          }
-        })
-        
-        console.log('✅ Auto cultivation response:', response.data)
-        
-        // Cập nhật trạng thái tu luyện
-        await fetchCultivationStatus(playerId)
-        
-        // Hiển thị thông báo level up nếu có
-        if (response.data.cultivation.levelUp) {
-          console.log(`🎉 Level Up! +${response.data.cultivation.levelGain} level(s)`)
-          // Emit event để component có thể bắt được
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('levelUp', {
-              detail: {
-                levelGain: response.data.cultivation.levelGain,
-                newLevel: response.data.cultivation.newLevel
-              }
-            }))
-          }
-        } else {
-          console.log(`📈 EXP gained: +${response.data.cultivation.expGained}, Total: ${response.data.cultivation.newExp}`)
-        }
-        
-      } catch (err) {
-        console.error('❌ Auto cultivation error:', err)
-        // Không dừng auto cultivation khi có lỗi, chỉ log
-        console.log('🔄 Retrying auto cultivation in next cycle...')
-      }
-    }, 3000) // Tu luyện mỗi 3 giây để test nhanh hơn
-  }
-
-  const stopAutoCultivation = () => {
-    autoCultivation.value = false
-    if (autoCultivationInterval.value) {
-      clearInterval(autoCultivationInterval.value)
-      autoCultivationInterval.value = null
-    }
-  }
-
-  const toggleAutoCultivation = (playerId: string, cultivationType: string = 'basic') => {
-    if (autoCultivation.value) {
-      stopAutoCultivation()
-    } else {
-      startAutoCultivation(playerId, cultivationType)
-    }
-  }
 
   // Reset store
   const reset = () => {
-    stopAutoCultivation()
     cultivationStatus.value = null
     isCultivating.value = false
     loading.value = false
@@ -219,7 +148,6 @@ export const useCultivationStore = defineStore('cultivation', () => {
     isCultivating,
     loading,
     error,
-    autoCultivation,
 
     // Getters
     canCultivate,
@@ -233,9 +161,6 @@ export const useCultivationStore = defineStore('cultivation', () => {
     breakthrough,
     getCultivationInfo,
     getRealmColor,
-    startAutoCultivation,
-    stopAutoCultivation,
-    toggleAutoCultivation,
     reset
   }
 })

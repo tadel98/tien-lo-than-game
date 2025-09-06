@@ -12,13 +12,16 @@
               Cập nhật: {{ formatTime(lastUpdated) }}
             </div>
           </div>
-          <button 
-            @click="refreshRanking"
-            :disabled="loading"
-            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg transition-colors"
-          >
-            {{ loading ? 'Đang tải...' : '🔄 Làm mới' }}
-          </button>
+          <div class="flex items-center space-x-3">
+            <HomeButton />
+            <button 
+              @click="refreshRanking"
+              :disabled="loading"
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              {{ loading ? 'Đang tải...' : '🔄 Làm mới' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -145,7 +148,7 @@
                   </td>
                   <td class="px-6 py-4">
                     <div class="text-xs space-y-1">
-                      <div class="text-yellow-300">⚡ {{ formatNumber(player.resources.huyenLuc) }}</div>
+                      <div class="text-yellow-300">💎 {{ formatNumber(player.resources.tienNgoc) }}</div>
                       <div class="text-blue-300">💎 {{ formatNumber(player.resources.linhThach) }}</div>
                     </div>
                   </td>

@@ -45,8 +45,8 @@ export default eventHandler(async (event) => {
     const realmProgress = calculateRealmProgress(currentLevel)
 
     // Lấy tài nguyên cần thiết
-    const huyenLucResource = player.resources.find(r => r.resource.name === 'huyen_luc')
-    const huyenLucAmount = huyenLucResource ? Number(huyenLucResource.amount) : 0
+    const linhThachResource = player.resources.find(r => r.resource.name === 'linh_thach')
+    const linhThachAmount = linhThachResource ? Number(linhThachResource.amount) : 0
 
     return {
       success: true,
@@ -62,8 +62,8 @@ export default eventHandler(async (event) => {
           progressPercentage: Math.round(progressPercentage * 100) / 100,
           realm,
           realmProgress,
-          canCultivate: huyenLucAmount >= 100,
-          huyenLucAmount
+          canCultivate: linhThachAmount >= 100,
+          linhThachAmount
         }
       }
     }

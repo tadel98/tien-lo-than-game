@@ -55,7 +55,8 @@ export default eventHandler(async (event) => {
         completedAt: null,
         lastCompletedAt: null,
         cooldownUntil: null,
-        canRepeat: quest.isRepeatable
+        canRepeat: quest.isRepeatable,
+        cooldownRemaining: 0
       }
 
       if (playerQuest) {
@@ -80,7 +81,8 @@ export default eventHandler(async (event) => {
             completedAt: null,
             lastCompletedAt: playerQuest.lastCompletedAt,
             cooldownUntil: null,
-            canRepeat: false
+            canRepeat: false,
+            cooldownRemaining: 0
           }
         } else if (quest.isRepeatable && playerQuest.status === 'cooldown') {
           // Xử lý quest lặp lại
@@ -88,15 +90,16 @@ export default eventHandler(async (event) => {
           
           if (cooldownUntil && now >= cooldownUntil) {
             // Cooldown đã hết, có thể nhận lại
-            playerStatus = {
-              status: 'available',
-              progress: {},
-              startedAt: null,
-              completedAt: null,
-              lastCompletedAt: playerQuest.lastCompletedAt,
-              cooldownUntil: null,
-              canRepeat: true
-            }
+          playerStatus = {
+            status: 'available',
+            progress: {},
+            startedAt: null,
+            completedAt: null,
+            lastCompletedAt: playerQuest.lastCompletedAt,
+            cooldownUntil: null,
+            canRepeat: true,
+            cooldownRemaining: 0
+          }
           } else {
             // Vẫn đang cooldown
             const remainingSeconds = cooldownUntil ? Math.max(0, Math.ceil((cooldownUntil.getTime() - now.getTime()) / 1000)) : 0
@@ -120,7 +123,8 @@ export default eventHandler(async (event) => {
             completedAt: playerQuest.completedAt,
             lastCompletedAt: playerQuest.lastCompletedAt,
             cooldownUntil: playerQuest.cooldownUntil,
-            canRepeat: quest.isRepeatable
+            canRepeat: quest.isRepeatable,
+            cooldownRemaining: 0
           }
         }
       } else {

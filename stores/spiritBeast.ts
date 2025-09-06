@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+// Type declarations for Nuxt 3 globals
+declare global {
+  const $fetch: typeof fetch
+}
+
 export const useSpiritBeastStore = defineStore('spiritBeast', () => {
   // State
   const spiritBeasts = ref<any[]>([])
@@ -99,9 +104,12 @@ export const useSpiritBeastStore = defineStore('spiritBeast', () => {
 
       const data = await $fetch('/api/spirit-beast/hunt', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           playerId,
           groundId
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 
@@ -125,11 +133,14 @@ export const useSpiritBeastStore = defineStore('spiritBeast', () => {
 
       const data = await $fetch('/api/spirit-beast/feed', {
         method: 'POST',
-        body: {
+        body: JSON.stringify({
           playerId,
           beastId,
           foodId,
           quantity
+        }),
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
 

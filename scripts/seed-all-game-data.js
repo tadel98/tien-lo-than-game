@@ -99,13 +99,6 @@ async function seedResources() {
       color: '#10b981'
     },
     {
-      name: 'huyen_luc',
-      displayName: 'Huyền Lực',
-      description: 'Năng lượng huyền bí để tu luyện',
-      icon: '⚡',
-      color: '#8b5cf6'
-    },
-    {
       name: 'suc_manh_chien_dau',
       displayName: 'Sức Mạnh Chiến Đấu',
       description: 'Tổng sức mạnh chiến đấu của người chơi',
@@ -260,7 +253,7 @@ async function seedQuests() {
       rewards: JSON.stringify({
         experience: 200,
         resources: {
-          huyen_luc: 100
+          linh_thach: 200
         }
       }),
       requirements: JSON.stringify({
@@ -279,7 +272,7 @@ async function seedQuests() {
         experience: 500,
         resources: {
           linh_thach: 2000,
-          huyen_luc: 200
+          tien_ngoc: 50
         }
       }),
       requirements: JSON.stringify({

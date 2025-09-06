@@ -16,7 +16,9 @@ type LazyComponent<T> = (T & DefineComponent<HydrationStrategies, {}, {}, {}, {}
 interface _GlobalComponents {
       'CharacterPanel': typeof import("../components/CharacterPanel.vue")['default']
     'CultivationPanel': typeof import("../components/CultivationPanel.vue")['default']
+    'HomeButton': typeof import("../components/HomeButton.vue")['default']
     'LoginForm': typeof import("../components/LoginForm.vue")['default']
+    'QuestPanel': typeof import("../components/QuestPanel.vue")['default']
     'QuestTimer': typeof import("../components/QuestTimer.vue")['default']
     'RankingWidget': typeof import("../components/RankingWidget.vue")['default']
     'NuxtWelcome': typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
@@ -45,7 +47,9 @@ interface _GlobalComponents {
     'NuxtRouteAnnouncer': typeof import("../node_modules/nuxt/dist/app/components/server-placeholder")['default']
       'LazyCharacterPanel': LazyComponent<typeof import("../components/CharacterPanel.vue")['default']>
     'LazyCultivationPanel': LazyComponent<typeof import("../components/CultivationPanel.vue")['default']>
+    'LazyHomeButton': LazyComponent<typeof import("../components/HomeButton.vue")['default']>
     'LazyLoginForm': LazyComponent<typeof import("../components/LoginForm.vue")['default']>
+    'LazyQuestPanel': LazyComponent<typeof import("../components/QuestPanel.vue")['default']>
     'LazyQuestTimer': LazyComponent<typeof import("../components/QuestTimer.vue")['default']>
     'LazyRankingWidget': LazyComponent<typeof import("../components/RankingWidget.vue")['default']>
     'LazyNuxtWelcome': LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>

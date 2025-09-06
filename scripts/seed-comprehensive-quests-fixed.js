@@ -39,7 +39,7 @@ async function seedComprehensiveQuests() {
         difficulty: 'easy',
         requirements: JSON.stringify({ level: 1 }),
         rewards: JSON.stringify({
-          resources: { linh_thach: 1000, huyen_luc: 200 },
+          resources: { linh_thach: 1000, tien_ngoc: 100 },
           experience: 2000
         }),
         isRepeatable: false,

@@ -33,6 +33,9 @@ declare module "nitropack/types" {
     '/api/character/update-combat-power': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/character/update-combat-power.post').default>>>>
     }
+    '/api/combat/fight': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/combat/fight.post').default>>>>
+    }
     '/api/cultivation/auto-cultivate': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/cultivation/auto-cultivate.post').default>>>>
     }

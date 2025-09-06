@@ -88,8 +88,8 @@ export default eventHandler(async (event) => {
       }
 
       // Lấy tài nguyên chính
-      const huyenLucResource = player.resources?.find((r: any) => r.resource.name === 'huyen_luc')
       const linhThachResource = player.resources?.find((r: any) => r.resource.name === 'linh_thach')
+      const tienNgocResource = player.resources?.find((r: any) => r.resource.name === 'tien_ngoc')
       
       return {
         rank: index + 1,
@@ -100,7 +100,7 @@ export default eventHandler(async (event) => {
         experience: Number(player.experience),
         combatPower,
         resources: {
-          huyenLuc: huyenLucResource ? Number(huyenLucResource.amount) : 0,
+          tienNgoc: tienNgocResource ? Number(tienNgocResource.amount) : 0,
           linhThach: linhThachResource ? Number(linhThachResource.amount) : 0
         },
         stats: player.stats ? {
