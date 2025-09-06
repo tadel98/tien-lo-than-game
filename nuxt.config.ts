@@ -33,6 +33,9 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: ['@prisma/client']
+    },
+    define: {
+      global: 'globalThis'
     }
   },
   experimental: {
@@ -40,6 +43,9 @@ export default defineNuxtConfig({
   },
   typescript: {
     typeCheck: false
+  },
+  build: {
+    transpile: ['@prisma/client']
   },
   ssr: false,
   runtimeConfig: {
