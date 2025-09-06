@@ -305,7 +305,7 @@ const filteredMonsters = computed(() => {
 // Methods
 const getResourceAmount = (resourceName) => {
   const resource = playerStore.getResourceByName(resourceName)
-  return resource ? Number(resource.amount).toLocaleString() : '0'
+  return resource ? Number(resource.amount || 0).toLocaleString() : '0'
 }
 
 const getDifficultyColor = (difficulty) => monsterStore.getDifficultyColor(difficulty)
@@ -320,7 +320,7 @@ const fightMonster = async () => {
   if (!currentMonster.value || !player.value?.id) return
 
   try {
-    loading.value = true
+    monsterStore.loading.value = true
     
     // Tính toán kết quả chiến đấu
     const result = monsterStore.calculateCombatResult(combatPower.value, player.value.level)
@@ -350,7 +350,7 @@ const fightMonster = async () => {
   } catch (err) {
     console.error('Lỗi săn quái:', err)
   } finally {
-    loading.value = false
+    monsterStore.loading.value = false
   }
 }
 

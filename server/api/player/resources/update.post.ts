@@ -6,12 +6,24 @@ const prisma = new PrismaClient()
 export default eventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { playerId, resourceId, amount, locked } = body
+    const { playerId, resourceName, amount, locked } = body
 
-    if (!playerId || !resourceId) {
+    if (!playerId || !resourceName) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Thiếu thông tin bắt buộc'
+      })
+    }
+
+    // Tìm resource theo name
+    const resource = await prisma.resource.findUnique({
+      where: { name: resourceName }
+    })
+
+    if (!resource) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Không tìm thấy tài nguyên'
       })
     }
 
@@ -20,7 +32,7 @@ export default eventHandler(async (event) => {
       where: {
         playerId_resourceId: {
           playerId,
-          resourceId
+          resourceId: resource.id
         }
       },
       update: {
@@ -29,7 +41,7 @@ export default eventHandler(async (event) => {
       },
       create: {
         playerId,
-        resourceId,
+        resourceId: resource.id,
         amount: amount || 0,
         locked: locked || 0
       }

@@ -62,9 +62,16 @@ export const useAutoSaveStore = defineStore('autoSave', () => {
       }
 
       // Save resources
-      if (playerStore.resources.length > 0) {
+      if (playerStore.resources && playerStore.resources.length > 0) {
         for (const resource of playerStore.resources) {
-          await playerStore.updateResource(playerId, resource.resource.name, resource.amount)
+          if (resource.resource?.name) {
+            await playerStore.updateResource(
+              playerId, 
+              resource.resource.name, 
+              Number(resource.amount || 0),
+              Number(resource.locked || 0)
+            )
+          }
         }
       }
 

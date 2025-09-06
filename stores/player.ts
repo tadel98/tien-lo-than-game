@@ -13,7 +13,7 @@ export const usePlayerStore = defineStore('player', () => {
 
   // Getters
   const getResourceByName = (name: string) => {
-    return resources.value.find(r => r.resource.name === name)
+    return resources.value?.find(r => r.resource?.name === name)
   }
 
   const getActiveCompanions = () => {

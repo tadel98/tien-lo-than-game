@@ -9,6 +9,12 @@ declare module "nitropack/types" {
     '/api/auth/register': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/auth/register.post').default>>>>
     }
+    '/api/boss/fight': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/boss/fight.post').default>>>>
+    }
+    '/api/boss/list': {
+      'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/boss/list.get').default>>>>
+    }
     '/api/cave-dwelling/status': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/cave-dwelling/status.get').default>>>>
     }
