@@ -20,9 +20,14 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-09-05',
   nitro: {
-    preset: 'vercel',
+    preset: 'node-server',
     experimental: {
       wasm: true
+    },
+    esbuild: {
+      options: {
+        target: 'es2020'
+      }
     }
   },
   vite: {

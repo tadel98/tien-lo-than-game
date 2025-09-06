@@ -22,7 +22,9 @@
     "deploy:now": "node scripts/deploy-now.js",
     "deploy:delayed": "node scripts/deploy-delayed.js",
     "deploy:5h": "node scripts/auto-deploy.js",
-    "deploy:custom": "node scripts/deploy-delayed.js"
+    "deploy:custom": "node scripts/deploy-delayed.js",
+    "start": "node .output/server/index.mjs",
+    "deploy:railway": "railway up"
   },
   "dependencies": {
     "@nuxt/devtools": "latest",
@@ -32,7 +34,7 @@
     "@types/pg": "^8.15.5",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-    "nuxt": "^3.8.0",
+    "nuxt": "3.8.0",
     "pg": "^8.16.3",
     "pinia": "^2.1.7",
     "prisma": "^5.22.0",
