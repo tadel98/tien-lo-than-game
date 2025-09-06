@@ -1,3 +1,5 @@
+import { defineEventHandler, createError } from 'h3'
+
 export default defineEventHandler(async (event) => {
   try {
     // Mock boss data - trong thực tế sẽ lấy từ database
@@ -13,7 +15,7 @@ export default defineEventHandler(async (event) => {
         speed: 150,
         combatPower: 15000,
         rewards: {
-          exp: 1000,
+          exp: 5000, // Tăng EXP
           tien_ngoc: 500,
           linh_thach: 200,
           items: [
@@ -36,7 +38,7 @@ export default defineEventHandler(async (event) => {
         speed: 300,
         combatPower: 50000,
         rewards: {
-          exp: 5000,
+          exp: 15000, // Tăng EXP
           tien_ngoc: 2000,
           linh_thach: 1000,
           items: [
@@ -60,7 +62,7 @@ export default defineEventHandler(async (event) => {
         speed: 500,
         combatPower: 100000,
         rewards: {
-          exp: 15000,
+          exp: 50000, // Tăng EXP
           tien_ngoc: 8000,
           linh_thach: 5000,
           items: [
@@ -84,7 +86,7 @@ export default defineEventHandler(async (event) => {
         speed: 200,
         combatPower: 5000,
         rewards: {
-          exp: 300,
+          exp: 1500, // Tăng EXP
           tien_ngoc: 150,
           linh_thach: 50,
           items: [

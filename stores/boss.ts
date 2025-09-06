@@ -24,7 +24,7 @@ export const useBossStore = defineStore('boss', () => {
       speed: 150,
       combatPower: 15000,
       rewards: {
-        exp: 1000,
+        exp: 5000, // Tăng từ 1000 lên 5000
         tien_ngoc: 500,
         linh_thach: 200,
         items: [
@@ -47,7 +47,7 @@ export const useBossStore = defineStore('boss', () => {
       speed: 300,
       combatPower: 50000,
       rewards: {
-        exp: 5000,
+        exp: 15000, // Tăng từ 5000 lên 15000
         tien_ngoc: 2000,
         linh_thach: 1000,
         items: [
@@ -71,7 +71,7 @@ export const useBossStore = defineStore('boss', () => {
       speed: 500,
       combatPower: 100000,
       rewards: {
-        exp: 15000,
+        exp: 50000, // Tăng từ 15000 lên 50000
         tien_ngoc: 8000,
         linh_thach: 5000,
         items: [
@@ -95,7 +95,7 @@ export const useBossStore = defineStore('boss', () => {
       speed: 200,
       combatPower: 5000,
       rewards: {
-        exp: 300,
+        exp: 1500, // Tăng từ 300 lên 1500
         tien_ngoc: 150,
         linh_thach: 50,
         items: [
