@@ -1,4 +1,4 @@
-import { useCultivationStore } from '~/stores/cultivation'
+import { useCultivationStore } from '../stores/cultivation'
 
 export const useCultivationAuto = () => {
   const cultivationStore = useCultivationStore()
