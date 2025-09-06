@@ -15,11 +15,52 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Lấy thông tin trang bị
-    const playerEquipment = await (prisma as any).playerEquipment.findFirst({
+    // Lấy thông tin trang bị từ inventory trước
+    const inventoryItem = await (prisma as any).inventory.findFirst({
       where: {
         playerId,
-        equipmentId
+        itemId: equipmentId,
+        itemType: 'equipment'
+      }
+    })
+
+    if (!inventoryItem) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Không tìm thấy trang bị trong túi đồ'
+      })
+    }
+
+    // Tìm equipment trong database
+    const equipment = await (prisma as any).equipment.findFirst({
+      where: {
+        id: equipmentId
+      },
+      include: {
+        type: true
+      }
+    })
+
+    if (!equipment) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Không tìm thấy thông tin trang bị'
+      })
+    }
+
+    // Tạo hoặc cập nhật playerEquipment
+    const playerEquipment = await (prisma as any).playerEquipment.upsert({
+      where: {
+        playerId_equipmentId: {
+          playerId,
+          equipmentId
+        }
+      },
+      update: {},
+      create: {
+        playerId,
+        equipmentId,
+        isEquipped: false
       },
       include: {
         equipment: {
@@ -29,13 +70,6 @@ export default eventHandler(async (event) => {
         }
       }
     })
-
-    if (!playerEquipment) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Không tìm thấy trang bị'
-      })
-    }
 
     // Kiểm tra yêu cầu trang bị
     if (playerEquipment.equipment.requirements) {
@@ -63,7 +97,7 @@ export default eventHandler(async (event) => {
         isEquipped: true,
         equipment: {
           type: {
-            slot: playerEquipment.equipment.type.slot
+            slot: equipment.type.slot
           }
         }
       }
@@ -71,20 +105,29 @@ export default eventHandler(async (event) => {
 
     if (currentEquipped) {
       await (prisma as any).playerEquipment.update({
-        where: { id: currentEquipped?.id },
+        where: { id: currentEquipped.id },
         data: { isEquipped: false }
       })
     }
 
     // Trang bị mới
     const updatedEquipment = await (prisma as any).playerEquipment.update({
-      where: { id: playerEquipment?.id },
+      where: { id: playerEquipment.id },
       data: { isEquipped: true }
     })
 
+    // Cập nhật sức mạnh chiến đấu
+    try {
+      await fetch('/api/character/sync-combat-power', {
+        method: 'POST'
+      })
+    } catch (e) {
+      console.error('Error syncing combat power:', e)
+    }
+
     return {
       success: true,
-      message: `Đã trang bị ${playerEquipment.equipment.displayName}`,
+      message: `Đã trang bị ${equipment.displayName}`,
       data: updatedEquipment
     }
   } catch (error: any) {

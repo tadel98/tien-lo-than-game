@@ -83,19 +83,12 @@ export default eventHandler(async (event) => {
     }
 
     // Tính toán Sức Mạnh Chiến Đấu (Combat Power)
-    const combatPower = Math.floor(
-      (totalStats.attack * 2) +
-      (totalStats.defense * 1.5) +
-      (totalStats.speed * 1.2) +
-      (totalStats.hp * 0.1) +
-      (totalStats.mp * 0.05) +
-      (totalStats.luck * 0.8) +
-      (totalStats.wisdom * 0.6) +
-      (totalStats.strength * 0.7) +
-      (totalStats.agility * 0.9) +
-      (totalStats.vitality * 0.5) +
-      (totalStats.spirit * 0.4)
-    )
+    const basePower = (totalStats.hp || 0) + (totalStats.mp || 0) + (totalStats.attack || 0) + (totalStats.defense || 0) + 
+                     (totalStats.speed || 0) + (totalStats.luck || 0) + (totalStats.wisdom || 0) + 
+                     (totalStats.strength || 0) + (totalStats.agility || 0) + (totalStats.vitality || 0) + (totalStats.spirit || 0)
+    
+    const mainStatsBonus = ((totalStats.strength || 0) + (totalStats.agility || 0) + (totalStats.vitality || 0) + (totalStats.spirit || 0)) * 2
+    const combatPower = Math.floor(basePower * 10 + mainStatsBonus)
 
     return {
       success: true,

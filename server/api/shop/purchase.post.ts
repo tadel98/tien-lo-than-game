@@ -74,10 +74,17 @@ export default eventHandler(async (event) => {
 
     // Kiểm tra tiền tệ
     const currencyResource = player.resources.find(r => r.resource.name === shopItem.currency)
-    if (!currencyResource || Number(currencyResource.amount) < totalCost) {
+    if (!currencyResource) {
       throw createError({
         statusCode: 400,
-        statusMessage: `Không đủ ${shopItem.currency} để mua`
+        statusMessage: `Không tìm thấy tài nguyên ${shopItem.currency}`
+      })
+    }
+    
+    if (Number(currencyResource.amount) < totalCost) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: `Không đủ ${shopItem.currency} để mua. Cần ${totalCost}, có ${Number(currencyResource.amount)}`
       })
     }
 

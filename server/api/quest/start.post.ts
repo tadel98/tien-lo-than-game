@@ -46,6 +46,8 @@ export default eventHandler(async (event) => {
       requiredLevel = requirements.level || 1
     } catch (e) {
       console.error('Error parsing quest requirements:', e)
+      // Nếu không parse được requirements, coi như level 1
+      requiredLevel = 1
     }
 
     if (player.level < requiredLevel) {

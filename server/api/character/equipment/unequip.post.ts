@@ -32,6 +32,15 @@ export default eventHandler(async (event) => {
       })
     }
 
+    // Cập nhật sức mạnh chiến đấu
+    try {
+      await fetch('/api/character/sync-combat-power', {
+        method: 'POST'
+      })
+    } catch (e) {
+      console.error('Error syncing combat power:', e)
+    }
+
     return {
       success: true,
       message: 'Đã tháo trang bị',
