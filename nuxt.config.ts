@@ -20,7 +20,15 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-09-05',
   nitro: {
-    preset: 'vercel'
+    preset: 'vercel',
+    experimental: {
+      wasm: true
+    }
+  },
+  vite: {
+    optimizeDeps: {
+      include: ['@prisma/client']
+    }
   },
   ssr: false,
   runtimeConfig: {

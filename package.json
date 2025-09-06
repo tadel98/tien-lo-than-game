@@ -16,7 +16,7 @@
     "db:seed": "node scripts/seed-all-game-data.js",
     "db:seed-quests": "node scripts/seed-comprehensive-quests-fixed.js",
     "db:cleanup": "node scripts/cleanup-database.js",
-    "deploy:check": "echo 'Checking if deployment is needed...' && git diff --name-only HEAD~1 HEAD | grep -E '^(pages|components|stores|server|composables|utils|prisma|nuxt.config|package.json|vercel.json|tailwind.config|app.vue|assets)/' && echo 'Deployment needed' || echo 'No deployment needed'",
+    "deploy:check": "node scripts/check-deploy.js",
     "deploy:preview": "vercel --prod",
     "deploy:production": "vercel --prod --confirm",
     "deploy:now": "node scripts/deploy-now.js",
