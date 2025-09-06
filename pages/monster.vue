@@ -22,6 +22,14 @@
               <p class="text-lg font-semibold text-red-400">{{ combatPower.toLocaleString() }}</p>
             </div>
             <div class="text-center">
+              <p class="text-sm text-game-text-secondary">Tu Luyện</p>
+              <p class="text-lg font-semibold text-purple-400">{{ cultivationStore.currentRealmDisplay }}</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-game-text-secondary">EXP Tu Luyện</p>
+              <p class="text-lg font-semibold text-green-400">{{ cultivationStore.currentExp.toLocaleString() }}</p>
+            </div>
+            <div class="text-center">
               <p class="text-sm text-game-text-secondary">Tiên Ngọc</p>
               <p class="text-lg font-semibold text-yellow-400">{{ getResourceAmount('tien_ngoc') }}</p>
             </div>
@@ -29,6 +37,9 @@
 
           <!-- Actions -->
           <div class="flex items-center space-x-2">
+            <NuxtLink to="/cultivation" class="game-button px-6 py-2 rounded-lg text-white font-semibold">
+              🧘 Tu Luyện
+            </NuxtLink>
             <NuxtLink to="/" class="game-button px-6 py-2 rounded-lg text-white font-semibold">
               🏠 Trang Chủ
             </NuxtLink>
@@ -41,6 +52,40 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Cultivation Progress -->
+      <div class="mb-8">
+        <div class="game-card p-6 rounded-lg border-2 border-purple-500">
+          <h2 class="text-2xl font-bold text-white mb-4">🧘 Tiến Độ Tu Luyện</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="text-center">
+              <p class="text-sm text-game-text-secondary">Cảnh Giới Hiện Tại</p>
+              <p class="text-xl font-semibold text-purple-400">{{ cultivationStore.currentRealmDisplay }}</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-game-text-secondary">EXP Hiện Tại</p>
+              <p class="text-xl font-semibold text-green-400">{{ cultivationStore.currentExp.toLocaleString() }}</p>
+            </div>
+            <div class="text-center">
+              <p class="text-sm text-game-text-secondary">EXP Cần Để Lên Tầng</p>
+              <p class="text-xl font-semibold text-blue-400">{{ cultivationStore.expToNextFloor.toLocaleString() }}</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="w-full bg-gray-700 rounded-full h-3">
+              <div 
+                class="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+                :style="{ width: `${Math.min(100, (cultivationStore.currentExp / cultivationStore.expToNextFloor) * 100)}%` }"
+              ></div>
+            </div>
+            <div class="flex justify-between text-sm text-game-text-secondary mt-2">
+              <span>{{ Math.round((cultivationStore.currentExp / cultivationStore.expToNextFloor) * 100) }}%</span>
+              <span v-if="cultivationStore.canBreakthroughFloor" class="text-green-400 font-semibold">Sẵn sàng lên tầng!</span>
+              <span v-else class="text-yellow-400">Cần thêm {{ (cultivationStore.expToNextFloor - cultivationStore.currentExp).toLocaleString() }} EXP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Combat Status -->
       <div v-if="isInCombat" class="mb-8">
         <div class="game-card p-6 rounded-lg border-2 border-green-500">

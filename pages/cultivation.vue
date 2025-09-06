@@ -51,18 +51,84 @@
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold mb-4">⚔️ Nhiệm Vụ & Đánh Quái</h1>
-        <p class="text-game-text-secondary">Hoàn thành nhiệm vụ và đánh quái để lên level</p>
+        <h1 class="text-4xl font-bold mb-4">🧘 Tu Luyện Cơ Bản</h1>
+        <p class="text-game-text-secondary">Hệ thống tu luyện với 7 cảnh giới và 15 tầng mỗi cảnh giới</p>
       </div>
 
-      <!-- Character chính -->
-      <div class="flex justify-center mb-8">
-        <div class="text-center">
-          <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center mb-2 mx-auto">
-            <span class="text-3xl">🧘</span>
+      <!-- Cultivation Status -->
+      <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 max-w-4xl mx-auto mb-8">
+        <h2 class="text-2xl font-bold text-white mb-6 text-center">Trạng Thái Tu Luyện</h2>
+        
+        <!-- Current Level -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold text-white">{{ cultivationStore.currentRealmDisplay }}</h3>
+            <span class="text-sm text-game-text-secondary">Tầng {{ cultivationStore.currentFloor }}/15</span>
           </div>
-          <p class="text-lg font-semibold">{{ player?.name || 'Viễn Cổ Đại Năng' }}</p>
-          <p class="text-sm text-game-text-secondary">Cấp {{ player?.level || 1 }} | {{ player?.realm || 'Phàm cảnh' }}</p>
+          
+          <!-- Progress Bar -->
+          <div class="w-full bg-gray-700 rounded-full h-4 mb-2">
+            <div 
+              class="bg-gradient-to-r from-purple-500 to-blue-500 h-4 rounded-full transition-all duration-500"
+              :style="{ width: `${Math.min(100, (cultivationStore.currentExp / cultivationStore.expToNextFloor) * 100)}%` }"
+            ></div>
+          </div>
+          
+          <div class="flex justify-between text-sm text-game-text-secondary">
+            <span>{{ cultivationStore.currentExp.toLocaleString() }} / {{ cultivationStore.expToNextFloor.toLocaleString() }} EXP</span>
+            <span>{{ Math.round((cultivationStore.currentExp / cultivationStore.expToNextFloor) * 100) }}%</span>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold text-white mb-1">EXP/ngày</h4>
+            <p class="text-lg text-blue-400">{{ cultivationStore.expPerDayCurrent.toLocaleString() }}</p>
+          </div>
+          
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold text-white mb-1">Tỷ lệ thành công</h4>
+            <p class="text-lg text-green-400">{{ Math.round(cultivationStore.currentFloorSuccessRate * 100) }}%</p>
+          </div>
+          
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold text-white mb-1">Trạng thái</h4>
+            <p v-if="cultivationStore.canBreakthroughFloor" class="text-lg text-green-400 font-semibold">Sẵn sàng lên tầng!</p>
+            <p v-else class="text-lg text-yellow-400">Cần thêm {{ (cultivationStore.expToNextFloor - cultivationStore.currentExp).toLocaleString() }} EXP</p>
+          </div>
+          
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold text-white mb-1">Cảnh giới hiện tại</h4>
+            <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/7</p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-4 justify-center">
+          <button
+            v-if="cultivationStore.canBreakthroughFloor"
+            @click="attemptBreakthroughFloor"
+            class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold"
+          >
+            🚀 Đột Phá Tầng
+          </button>
+          
+          <button
+            v-if="cultivationStore.canBreakthroughRealm"
+            @click="attemptBreakthroughRealm"
+            class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
+          >
+            🌟 Đột Phá Cảnh Giới
+          </button>
+          
+          <button
+            v-if="cultivationStore.isMaxLevel"
+            disabled
+            class="px-6 py-3 bg-gray-600 rounded-lg text-white font-semibold cursor-not-allowed"
+          >
+            🏆 Đã Đạt Max Level
+          </button>
         </div>
       </div>
 
@@ -112,6 +178,22 @@ const handleLogout = () => {
 
 const hideLevelUpNotification = () => {
   showLevelUpNotification.value = false
+}
+
+const attemptBreakthroughFloor = () => {
+  const success = cultivationStore.attemptBreakthroughFloor()
+  if (success) {
+    console.log('Đột phá tầng thành công!')
+  } else {
+    console.log('Đột phá tầng thất bại!')
+  }
+}
+
+const attemptBreakthroughRealm = () => {
+  const success = cultivationStore.attemptBreakthroughRealm()
+  if (success) {
+    console.log('Đột phá cảnh giới thành công!')
+  }
 }
 
 // Initialize

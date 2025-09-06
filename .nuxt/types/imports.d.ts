@@ -28,8 +28,6 @@ declare global {
   const createError: typeof import('../../node_modules/nuxt/dist/app/composables/error')['createError']
   const customRef: typeof import('vue')['customRef']
   const daysToMax: typeof import('../../utils/expCalc')['daysToMax']
-  const daysToNextFloor: typeof import('../../utils/expCalc')['daysToNextFloor']
-  const daysToNextRealm: typeof import('../../utils/expCalc')['daysToNextRealm']
   const defineAppConfig: typeof import('../../node_modules/nuxt/dist/app/nuxt')['defineAppConfig']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
@@ -46,11 +44,9 @@ declare global {
   const distributePoints: typeof import('../../utils/combat-power')['distributePoints']
   const effect: typeof import('vue')['effect']
   const effectScope: typeof import('vue')['effectScope']
-  const expForFloor: typeof import('../../utils/expCalc')['expForFloor']
   const expForRealm: typeof import('../../utils/expCalc')['expForRealm']
   const expPerDay: typeof import('../../utils/expCalc')['expPerDay']
   const expToCurrentLevel: typeof import('../../utils/expCalc')['expToCurrentLevel']
-  const expToMaxFromCurrent: typeof import('../../utils/expCalc')['expToMaxFromCurrent']
   const expToNextFloor: typeof import('../../utils/expCalc')['expToNextFloor']
   const expToNextRealm: typeof import('../../utils/expCalc')['expToNextRealm']
   const getAppManifest: typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getAppManifest']
@@ -259,8 +255,6 @@ declare module 'vue' {
     readonly createError: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/error')['createError']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly daysToMax: UnwrapRef<typeof import('../../utils/expCalc')['daysToMax']>
-    readonly daysToNextFloor: UnwrapRef<typeof import('../../utils/expCalc')['daysToNextFloor']>
-    readonly daysToNextRealm: UnwrapRef<typeof import('../../utils/expCalc')['daysToNextRealm']>
     readonly defineAppConfig: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/nuxt')['defineAppConfig']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
@@ -277,11 +271,9 @@ declare module 'vue' {
     readonly distributePoints: UnwrapRef<typeof import('../../utils/combat-power')['distributePoints']>
     readonly effect: UnwrapRef<typeof import('vue')['effect']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
-    readonly expForFloor: UnwrapRef<typeof import('../../utils/expCalc')['expForFloor']>
     readonly expForRealm: UnwrapRef<typeof import('../../utils/expCalc')['expForRealm']>
     readonly expPerDay: UnwrapRef<typeof import('../../utils/expCalc')['expPerDay']>
     readonly expToCurrentLevel: UnwrapRef<typeof import('../../utils/expCalc')['expToCurrentLevel']>
-    readonly expToMaxFromCurrent: UnwrapRef<typeof import('../../utils/expCalc')['expToMaxFromCurrent']>
     readonly expToNextFloor: UnwrapRef<typeof import('../../utils/expCalc')['expToNextFloor']>
     readonly expToNextRealm: UnwrapRef<typeof import('../../utils/expCalc')['expToNextRealm']>
     readonly getAppManifest: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getAppManifest']>

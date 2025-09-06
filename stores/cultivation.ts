@@ -2,16 +2,15 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { 
   expPerDay, 
-  expForRealm, 
+  expForRealm,
   expToNextFloor, 
   expToNextRealm,
   expToCurrentLevel,
   getSuccessRate,
   getRealmName,
-  daysToNextFloor,
-  daysToNextRealm,
   REALMS,
   FLOORS,
+  FAIL_RATES,
   REALM_NAMES
 } from '../utils/expCalc'
 
@@ -25,11 +24,12 @@ export const useCultivationStore = defineStore('cultivation', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  // Cultivation system state
-  const currentRealmIndex = ref(1) // 1-7
+  // New cultivation system state
+  const currentRealm = ref(1) // 1-7
   const currentFloor = ref(1) // 1-15
   const currentExp = ref(0)
   const totalExpGained = ref(0)
+
 
   // Getters
   const canCultivate = computed(() => {
@@ -46,29 +46,20 @@ export const useCultivationStore = defineStore('cultivation', () => {
     return cultivationStatus.value?.cultivation?.progressPercentage || 0
   })
 
-  const currentRealm = computed(() => {
-    return getRealmName(currentRealmIndex.value)
-  })
-
-  // New cultivation system getters
   const currentRealmDisplay = computed(() => {
-    return `${getRealmName(currentRealmIndex.value)} Tầng ${currentFloor.value}`
+    return `${getRealmName(currentRealm.value)} Tầng ${currentFloor.value}`
   })
 
-  const expToNextFloor = computed(() => {
-    return expToNextFloor(currentRealmIndex.value, currentFloor.value)
-  })
-
-  const expToNextRealm = computed(() => {
-    return expToNextRealm(currentRealmIndex.value)
+  const expToNextFloorValue = computed(() => {
+    return expToNextFloor(currentRealm.value, currentFloor.value)
   })
 
   const canBreakthroughFloor = computed(() => {
-    return currentExp.value >= expToNextFloor.value
+    return currentExp.value >= expToNextFloorValue.value
   })
 
   const canBreakthroughRealm = computed(() => {
-    return currentFloor.value >= FLOORS && currentExp.value >= expToNextRealm.value
+    return currentFloor.value >= FLOORS && currentExp.value >= expToNextRealm(currentRealm.value)
   })
 
   const currentFloorSuccessRate = computed(() => {
@@ -76,22 +67,13 @@ export const useCultivationStore = defineStore('cultivation', () => {
   })
 
   const isMaxLevel = computed(() => {
-    return currentRealmIndex.value >= REALMS && currentFloor.value >= FLOORS
+    return currentRealm.value >= REALMS && currentFloor.value >= FLOORS
   })
 
   const expPerDayCurrent = computed(() => {
-    return expPerDay(currentRealmIndex.value)
+    return expPerDay(currentRealm.value)
   })
 
-  const daysToNextFloor = computed(() => {
-    if (isMaxLevel.value) return 0
-    return Math.ceil(expToNextFloor.value / expPerDayCurrent.value)
-  })
-
-  const daysToNextRealm = computed(() => {
-    if (isMaxLevel.value) return 0
-    return Math.ceil(expToNextRealm.value / expPerDayCurrent.value)
-  })
 
   // Actions
   const fetchCultivationStatus = async (playerId: string) => {
@@ -185,17 +167,16 @@ export const useCultivationStore = defineStore('cultivation', () => {
 
   const getRealmColor = (realm: string) => {
     const realmColors = {
-      'Phàm cảnh': '#6b7280',
-      'Luyện Khí cảnh': '#3b82f6',
-      'Trúc Cơ cảnh': '#10b981',
-      'Kim Đan cảnh': '#f59e0b',
-      'Nguyên Anh cảnh': '#ef4444',
-      'Hóa Thần cảnh': '#8b5cf6',
-      'Hợp Thể cảnh': '#f97316'
+      'Luyện Khí': '#3b82f6',
+      'Trúc Cơ': '#10b981',
+      'Kim Đan': '#f59e0b',
+      'Nguyên Anh': '#ef4444',
+      'Hóa Thần': '#8b5cf6',
+      'Hợp Thể': '#f97316',
+      'Đại Thừa': '#8b5cf6'
     }
     return realmColors[realm] || '#6b7280'
   }
-
 
   // New cultivation system actions
   const addExp = (amount: number) => {
@@ -206,7 +187,7 @@ export const useCultivationStore = defineStore('cultivation', () => {
   const breakthroughFloor = () => {
     if (!canBreakthroughFloor.value) return false
     
-    currentExp.value -= expToNextFloor.value
+    currentExp.value -= expToNextFloorValue.value
     currentFloor.value += 1
     
     return true
@@ -215,52 +196,54 @@ export const useCultivationStore = defineStore('cultivation', () => {
   const breakthroughRealm = () => {
     if (!canBreakthroughRealm.value) return false
     
-    currentExp.value -= expToNextRealm.value
-    currentRealmIndex.value += 1
+    currentExp.value -= expToNextRealm(currentRealm.value)
+    currentRealm.value += 1
     currentFloor.value = 1
     
     return true
   }
 
-  const attemptBreakthrough = () => {
+  const attemptBreakthroughFloor = () => {
     const successRate = currentFloorSuccessRate.value
     const isSuccess = Math.random() < successRate
     
     if (isSuccess) {
-      if (currentFloor.value >= FLOORS) {
-        return breakthroughRealm()
-      } else {
-        return breakthroughFloor()
-      }
+      return breakthroughFloor()
     }
     
+    return false
+  }
+
+  const attemptBreakthroughRealm = () => {
+    if (canBreakthroughRealm.value) {
+      return breakthroughRealm()
+    }
     return false
   }
 
   const getCultivationStats = () => {
     return {
       currentRealm: currentRealm.value,
-      currentRealmIndex: currentRealmIndex.value,
       currentFloor: currentFloor.value,
       currentExp: currentExp.value,
-      expToNextFloor: expToNextFloor.value,
-      expToNextRealm: expToNextRealm.value,
+      expToNextFloor: expToNextFloorValue.value,
+      expToNextRealm: expToNextRealm(currentRealm.value),
       canBreakthroughFloor: canBreakthroughFloor.value,
       canBreakthroughRealm: canBreakthroughRealm.value,
       successRate: currentFloorSuccessRate.value,
       isMaxLevel: isMaxLevel.value,
-      expPerDay: expPerDayCurrent.value,
-      daysToNextFloor: daysToNextFloor.value,
-      daysToNextRealm: daysToNextRealm.value
+      expPerDay: expPerDayCurrent.value
     }
   }
 
   const resetCultivation = () => {
-    currentRealmIndex.value = 1
+    currentRealm.value = 1
     currentFloor.value = 1
     currentExp.value = 0
     totalExpGained.value = 0
   }
+
+
 
   // Reset store
   const reset = () => {
@@ -277,7 +260,7 @@ export const useCultivationStore = defineStore('cultivation', () => {
     isCultivating,
     loading,
     error,
-    currentRealmIndex,
+    currentRealm,
     currentFloor,
     currentExp,
     totalExpGained,
@@ -286,17 +269,13 @@ export const useCultivationStore = defineStore('cultivation', () => {
     canCultivate,
     canBreakthrough,
     progressPercentage,
-    currentRealm,
     currentRealmDisplay,
-    expToNextFloor,
-    expToNextRealm,
+    expToNextFloor: expToNextFloorValue,
     canBreakthroughFloor,
     canBreakthroughRealm,
     currentFloorSuccessRate,
     isMaxLevel,
     expPerDayCurrent,
-    daysToNextFloor,
-    daysToNextRealm,
 
     // Actions
     fetchCultivationStatus,
@@ -307,7 +286,8 @@ export const useCultivationStore = defineStore('cultivation', () => {
     addExp,
     breakthroughFloor,
     breakthroughRealm,
-    attemptBreakthrough,
+    attemptBreakthroughFloor,
+    attemptBreakthroughRealm,
     getCultivationStats,
     resetCultivation,
     reset

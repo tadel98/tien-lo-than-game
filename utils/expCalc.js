@@ -18,15 +18,15 @@ const FAIL_RATES = {
 };
 
 // Tên các cảnh giới
-const REALM_NAMES = {
-  1: 'Luyện Khí',
-  2: 'Trúc Cơ', 
-  3: 'Kim Đan',
-  4: 'Nguyên Anh',
-  5: 'Hóa Thần',
-  6: 'Luyện Hư',
-  7: 'Đại Thừa'
-};
+const REALM_NAMES = [
+  'Luyện Khí',      // 1
+  'Trúc Cơ',        // 2
+  'Kim Đan',        // 3
+  'Nguyên Anh',     // 4
+  'Hóa Thần',       // 5
+  'Hợp Thể',        // 6
+  'Đại Thừa'        // 7
+];
 
 // =======================
 // FUNCTIONS
@@ -80,90 +80,73 @@ export function daysToMax(totalExp, days = 180) {
   };
 }
 
-// Tính exp cần cho 1 tầng cụ thể
-export function expForFloor(realmIndex, floor) {
-  const expDay = expPerDay(realmIndex);
+// Lấy tên cảnh giới
+export function getRealmName(realmIndex) {
+  return REALM_NAMES[realmIndex - 1] || 'Unknown';
+}
+
+// Tính exp cần để lên tầng tiếp theo trong cảnh giới hiện tại
+export function expToNextFloor(currentRealm, currentFloor) {
+  if (currentFloor >= FLOORS) {
+    return 0; // Đã max tầng trong cảnh giới này
+  }
   
-  if (floor <= 10) {
-    return expDay; // 10 tầng đầu luôn thành công
+  const expDay = expPerDay(currentRealm);
+  const nextFloor = currentFloor + 1;
+  
+  if (nextFloor <= 10) {
+    // 10 tầng đầu luôn thành công
+    return expDay;
   } else {
-    const failRate = FAIL_RATES[floor];
+    // 5 tầng cuối có tỉ lệ fail
+    const failRate = FAIL_RATES[nextFloor];
     const successRate = 1 - failRate;
     const expectedTries = 1 / successRate;
     return expDay * expectedTries;
   }
 }
 
-// Tính exp cần để lên tầng tiếp theo
-export function expToNextFloor(realmIndex, currentFloor) {
-  if (currentFloor >= FLOORS) {
-    return 0; // Đã max tầng
-  }
-  return expForFloor(realmIndex, currentFloor + 1);
-}
-
-// Tính exp cần để lên cảnh giới tiếp theo
-export function expToNextRealm(currentRealmIndex) {
-  if (currentRealmIndex >= REALMS) {
-    return 0; // Đã max cảnh giới
-  }
-  
-  let totalExp = 0;
-  for (let floor = 1; floor <= FLOORS; floor++) {
-    totalExp += expForFloor(currentRealmIndex, floor);
-  }
-  return totalExp;
-}
-
 // Tính tỷ lệ thành công cho tầng
 export function getSuccessRate(floor) {
   if (floor <= 10) {
     return 1.0; // 100% thành công
-  } else {
-    return 1 - (FAIL_RATES[floor] || 0);
   }
+  return 1 - (FAIL_RATES[floor] || 0);
 }
 
-// Lấy tên cảnh giới
-export function getRealmName(realmIndex) {
-  return REALM_NAMES[realmIndex] || `Cảnh Giới ${realmIndex}`;
+// Tính exp cần để lên cảnh giới tiếp theo
+export function expToNextRealm(currentRealm) {
+  if (currentRealm >= REALMS) {
+    return 0; // Đã max cảnh giới
+  }
+  return expForRealm(currentRealm + 1);
 }
 
 // Tính exp cần từ đầu đến cảnh giới và tầng hiện tại
-export function expToCurrentLevel(realmIndex, floor) {
+export function expToCurrentLevel(realm, floor) {
   let totalExp = 0;
   
   // Exp từ các cảnh giới trước
-  for (let realm = 1; realm < realmIndex; realm++) {
-    totalExp += expForRealm(realm);
+  for (let r = 1; r < realm; r++) {
+    totalExp += expForRealm(r);
   }
   
   // Exp từ các tầng trong cảnh giới hiện tại
+  const expDay = expPerDay(realm);
   for (let f = 1; f < floor; f++) {
-    totalExp += expForFloor(realmIndex, f);
+    if (f <= 10) {
+      totalExp += expDay;
+    } else {
+      const failRate = FAIL_RATES[f];
+      const successRate = 1 - failRate;
+      const expectedTries = 1 / successRate;
+      totalExp += expDay * expectedTries;
+    }
   }
   
   return totalExp;
 }
 
-// Tính exp cần để max level từ vị trí hiện tại
-export function expToMaxFromCurrent(realmIndex, floor) {
-  const totalMax = totalExpToMax();
-  const current = expToCurrentLevel(realmIndex, floor);
-  return totalMax - current;
-}
-
-// Tính thời gian cần thiết để lên tầng tiếp theo (ngày)
-export function daysToNextFloor(realmIndex, currentFloor, expPerDay) {
-  const expNeeded = expToNextFloor(realmIndex, currentFloor);
-  return Math.ceil(expNeeded / expPerDay);
-}
-
-// Tính thời gian cần thiết để lên cảnh giới tiếp theo (ngày)
-export function daysToNextRealm(currentRealmIndex, expPerDay) {
-  const expNeeded = expToNextRealm(currentRealmIndex);
-  return Math.ceil(expNeeded / expPerDay);
-}
 
 // =======================
 // MAIN (for testing)
