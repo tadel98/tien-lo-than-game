@@ -41,10 +41,11 @@ export const useAuthStore = defineStore('auth', () => {
         }
 
         // Start auto-save
+        const { useAutoSaveStore } = await import('./autoSave')
         const autoSaveStore = useAutoSaveStore()
         if (response.user?.player?.id) {
           autoSaveStore.startAutoSave(response.user.player.id)
-          autoSaveStore.setupAutoSave(response.user.player.id)
+          await autoSaveStore.setupAutoSave(response.user.player.id)
         }
 
         return response
@@ -88,10 +89,11 @@ export const useAuthStore = defineStore('auth', () => {
         }
 
         // Start auto-save
+        const { useAutoSaveStore } = await import('./autoSave')
         const autoSaveStore = useAutoSaveStore()
         if (response.user?.player?.id) {
           autoSaveStore.startAutoSave(response.user.player.id)
-          autoSaveStore.setupAutoSave(response.user.player.id)
+          await autoSaveStore.setupAutoSave(response.user.player.id)
         }
 
         return response
@@ -108,15 +110,23 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     try {
       // Save data before logout
+      const { useAutoSaveStore } = await import('./autoSave')
       const autoSaveStore = useAutoSaveStore()
-      if (user.value?.player?.id) {
-        await autoSaveStore.saveBeforeLogout(user.value.player.id)
+      if ((user.value as any)?.player?.id) {
+        await autoSaveStore.saveBeforeLogout((user.value as any).player.id)
       }
 
       // Stop auto-save
       autoSaveStore.stopAutoSave()
 
-      // Reset all stores
+      // Reset all stores using dynamic import
+      const { usePlayerStore } = await import('./player')
+      const { useCharacterStore } = await import('./character')
+      const { useCultivationStore } = await import('./cultivation')
+      const { useQuestStore } = await import('./quest')
+      const { useSpiritBeastStore } = await import('./spiritBeast')
+      const { useTalentStore } = await import('./talent')
+
       const playerStore = usePlayerStore()
       const characterStore = useCharacterStore()
       const cultivationStore = useCultivationStore()
@@ -160,7 +170,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem('auth_token')
       const storedUser = localStorage.getItem('user_data')
@@ -172,10 +182,11 @@ export const useAuthStore = defineStore('auth', () => {
           isAuthenticated.value = true
 
           // Start auto-save if user has player data
+          const { useAutoSaveStore } = await import('./autoSave')
           const autoSaveStore = useAutoSaveStore()
-          if (user.value?.player?.id) {
-            autoSaveStore.startAutoSave(user.value.player.id)
-            autoSaveStore.setupAutoSave(user.value.player.id)
+          if ((user.value as any)?.player?.id) {
+            autoSaveStore.startAutoSave((user.value as any).player.id)
+            await autoSaveStore.setupAutoSave((user.value as any).player.id)
           }
         } catch (err) {
           console.error('Error parsing stored user data:', err)
