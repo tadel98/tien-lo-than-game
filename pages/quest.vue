@@ -344,6 +344,13 @@ const refreshQuests = async () => {
 
 const startQuest = async (questId) => {
   try {
+    console.log('Starting quest with:', { playerId: player.value?.id, questId })
+    
+    if (!player.value?.id) {
+      console.error('Player ID not found!')
+      return
+    }
+    
     const result = await questStore.startQuest(player.value.id, questId)
     console.log('Nhiệm vụ đã được nhận:', result.quest.displayName)
     
