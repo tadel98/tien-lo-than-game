@@ -3,10 +3,10 @@
 // =======================
 // CONFIG
 // =======================
-const BASE_EXP_PER_DAY = 2400000;  // Exp/ngày cảnh giới đầu (Luyện Khí)
+const BASE_EXP_PER_DAY = 10000;    // Exp/ngày cảnh giới đầu (Luyện Khí) - Giảm từ 2.4M xuống 10K
 const REALMS = 9;                  // 9 cảnh giới
 const FLOORS = 15;                 // 15 tầng mỗi cảnh giới
-const REALM_GROWTH = 0.05;         // +5% exp mỗi cảnh giới
+const REALM_GROWTH = 0.2;          // +20% exp mỗi cảnh giới (tăng từ 5% lên 20%)
 
 // Tỷ lệ fail tầng 11-15
 const FAIL_RATES = {
@@ -53,7 +53,9 @@ const ETERNAL_TITLES = {
 
 // Exp/ngày theo cảnh giới
 export function expPerDay(realmIndex) {
-  return BASE_EXP_PER_DAY * Math.pow(1 + REALM_GROWTH, realmIndex - 1);
+  const baseExp = 1000; // EXP cơ bản mỗi giây
+  const realmMultiplier = Math.pow(1.2, realmIndex - 1); // Tăng 20% mỗi cảnh giới
+  return Math.floor(baseExp * realmMultiplier);
 }
 
 // Exp để hoàn thành 1 cảnh giới
@@ -110,19 +112,19 @@ export function expToNextFloor(currentRealm, currentFloor) {
     return 0; // Đã max tầng trong cảnh giới này
   }
   
-  const expDay = expPerDay(currentRealm);
-  const nextFloor = currentFloor + 1;
+  // Hệ thống EXP đơn giản hơn
+  const baseExp = 1000; // EXP cơ bản cho tầng 1
+  const realmMultiplier = Math.pow(1.5, currentRealm - 1); // Tăng 50% mỗi cảnh giới
+  const floorMultiplier = Math.pow(1.2, currentFloor); // Tăng 20% mỗi tầng
   
-  if (nextFloor <= 10) {
-    // 10 tầng đầu luôn thành công
-    return expDay;
-  } else {
-    // 5 tầng cuối có tỉ lệ fail
-    const failRate = FAIL_RATES[nextFloor];
-    const successRate = 1 - failRate;
-    const expectedTries = 1 / successRate;
-    return expDay * expectedTries;
+  let expNeeded = Math.floor(baseExp * realmMultiplier * floorMultiplier);
+  
+  // Tầng 11-15 có yêu cầu EXP cao hơn
+  if (currentFloor >= 10) {
+    expNeeded = Math.floor(expNeeded * 2); // Gấp đôi cho tầng cao
   }
+  
+  return expNeeded;
 }
 
 // Tính tỷ lệ thành công cho tầng
@@ -138,7 +140,14 @@ export function expToNextRealm(currentRealm) {
   if (currentRealm >= REALMS) {
     return 0; // Đã max cảnh giới
   }
-  return expForRealm(currentRealm + 1);
+  
+  // EXP cần để lên cảnh giới tiếp theo = tổng EXP của tất cả tầng trong cảnh giới hiện tại
+  let totalExp = 0;
+  for (let floor = 1; floor <= FLOORS; floor++) {
+    totalExp += expToNextFloor(currentRealm, floor);
+  }
+  
+  return totalExp;
 }
 
 // Tính exp cần từ đầu đến cảnh giới và tầng hiện tại
@@ -171,19 +180,28 @@ export function expToCurrentLevel(realm, floor) {
 // MAIN (for testing)
 // =======================
 export function calculateCultivationStats() {
-  const expNeed = totalExpToMax();
-  const result = daysToMax(expNeed, 180);
-
   console.log("======================================");
-  console.log("⚔️   KẾT QUẢ TÍNH EXP TU LUYỆN");
-  console.log("======================================");
-  console.log("Tổng exp cần:", expNeed.toLocaleString());
-  console.log("Exp có thể farm trong 180 ngày:", result.expCanFarm.toLocaleString());
-  console.log("Đủ để max level trong 180 ngày?", result.canReach ? "✅ Có" : "❌ Không");
-  console.log("Số ngày tối thiểu cần:", result.daysRequired, "ngày");
+  console.log("⚔️   HỆ THỐNG EXP MỚI");
   console.log("======================================");
   
-  return result;
+  // Hiển thị EXP cần cho các tầng đầu
+  for (let realm = 1; realm <= 3; realm++) {
+    console.log(`\n--- Cảnh giới ${realm} (${getRealmName(realm)}) ---`);
+    for (let floor = 1; floor <= 5; floor++) {
+      const expNeeded = expToNextFloor(realm, floor);
+      const expPerSecond = expPerDay(realm);
+      const timeNeeded = Math.ceil(expNeeded / expPerSecond);
+      console.log(`Tầng ${floor} -> ${floor + 1}: ${expNeeded.toLocaleString()} EXP (${timeNeeded}s với ${expPerSecond} EXP/s)`);
+    }
+  }
+  
+  console.log("======================================");
+  
+  return {
+    expPerSecond: expPerDay(1),
+    firstFloorExp: expToNextFloor(1, 1),
+    secondFloorExp: expToNextFloor(1, 2)
+  };
 }
 
 // Lấy phẩm chất dựa trên tầng đạt được
