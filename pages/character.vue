@@ -15,7 +15,10 @@
             </div>
             <div>
               <h2 class="text-lg font-semibold">{{ player?.name || 'Viễn Cổ Đại Năng' }}</h2>
-              <p class="text-sm text-game-text-secondary">Cấp {{ player?.level || 138 }} | Chuyển: {{ player?.realm || 'Phàm cảnh' }}</p>
+              <p class="text-sm text-game-text-secondary">
+                Cấp {{ (cultivationStore.currentRealm - 1) * 15 + cultivationStore.currentFloor }} | 
+                {{ cultivationStore.currentRealmDisplay }} - Tầng {{ cultivationStore.currentFloor }}
+              </p>
             </div>
           </div>
 
@@ -97,6 +100,7 @@
 const authStore = useAuthStore()
 const playerStore = usePlayerStore()
 const characterStore = useCharacterStore()
+const cultivationStore = useCultivationStore()
 
 // Computed
 const isAuthenticated = computed(() => authStore.isLoggedIn)

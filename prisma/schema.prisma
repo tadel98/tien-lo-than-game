@@ -45,9 +45,9 @@ model Player {
   id          String   @id @default(cuid())
   userId      String   @unique
   name        String
-  level       Int      @default(1)
-  realm       String   @default("Phàm cảnh")
-  experience  BigInt   @default(0)
+  level       Int      @default(1) // Giữ lại để tương thích
+  realm       String   @default("Luyện Khí") // Cảnh giới chính
+  experience  BigInt   @default(0) // Giữ lại để tương thích
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

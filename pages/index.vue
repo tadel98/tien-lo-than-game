@@ -20,7 +20,7 @@
             </div>
             <div class="text-right">
               <p class="text-sm text-gray-300">Cấp độ</p>
-              <p class="text-lg font-bold text-blue-400">1</p>
+              <p class="text-lg font-bold text-blue-400">{{ (cultivationStore.currentRealm - 1) * 15 + cultivationStore.currentFloor }}</p>
             </div>
           </div>
         </div>
@@ -139,5 +139,15 @@
 </template>
 
 <script setup>
-// Simple home page without complex store logic
+// Stores
+const cultivationStore = useCultivationStore()
+
+// Initialize cultivation data on mount
+onMounted(async () => {
+  // Load cultivation data if user is authenticated
+  const authStore = useAuthStore()
+  if (authStore.isAuthenticated && authStore.user?.player?.id) {
+    await cultivationStore.loadCultivationData(authStore.user.player.id)
+  }
+})
 </script>

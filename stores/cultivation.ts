@@ -143,6 +143,28 @@ export const useCultivationStore = defineStore('cultivation', () => {
     }
   }
 
+  const updatePlayerLevelAndRealm = async (playerId: string) => {
+    try {
+      // Tính cấp độ dựa trên cảnh giới và tầng
+      const newLevel = (currentRealm.value - 1) * 15 + currentFloor.value
+      const realmName = getRealmName(currentRealm.value)
+      
+      // Cập nhật player level và realm
+      await $fetch('/api/player/update', {
+        method: 'POST',
+        body: {
+          playerId,
+          level: newLevel,
+          realm: realmName
+        }
+      })
+      
+      console.log(`🎉 Đã cập nhật cấp độ: ${newLevel}, cảnh giới: ${realmName}`)
+    } catch (err: any) {
+      console.error('Error updating player level and realm:', err)
+    }
+  }
+
   const saveCultivationData = async (playerId: string) => {
     try {
       loading.value = true
@@ -191,6 +213,7 @@ export const useCultivationStore = defineStore('cultivation', () => {
       currentFloor.value++
       
       if (playerId) {
+        await updatePlayerLevelAndRealm(playerId)
         await saveCultivationData(playerId)
       }
       
@@ -223,7 +246,9 @@ export const useCultivationStore = defineStore('cultivation', () => {
       currentRealm.value++
       currentFloor.value = 1
       
+      // Cập nhật cấp độ và cảnh giới của player
       if (playerId) {
+        await updatePlayerLevelAndRealm(playerId)
         await saveCultivationData(playerId)
       }
       
@@ -370,6 +395,7 @@ export const useCultivationStore = defineStore('cultivation', () => {
     // Actions
     loadCultivationData,
     saveCultivationData,
+    updatePlayerLevelAndRealm,
     addExp,
     breakthroughFloor,
     breakthroughRealm,
