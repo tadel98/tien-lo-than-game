@@ -16,8 +16,8 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Lấy thông tin người chơi
-    const player = await (prisma as any).player.findUnique({
+    // Lấy thông tin người chơi hoặc tạo mới nếu không có
+    let player = await (prisma as any).player.findUnique({
       where: { id: playerId },
       include: {
         resources: {
@@ -29,9 +29,18 @@ export default eventHandler(async (event) => {
     })
 
     if (!player) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Không tìm thấy người chơi'
+      // Tạo player mới nếu không tồn tại
+      player = await (prisma as any).player.create({
+        data: {
+          id: playerId,
+          name: 'Test Player',
+          level: 1,
+          experience: 0,
+          realm: 'Phàm cảnh',
+          combatPower: 100,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
       })
     }
 
