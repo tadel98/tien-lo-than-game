@@ -17,16 +17,20 @@
   },
   "dependencies": {
     "@nuxt/devtools": "latest",
-    "nuxt": "^3.8.0",
     "@nuxtjs/tailwindcss": "^6.8.4",
     "@pinia/nuxt": "^0.5.1",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.4",
+    "nuxt": "^3.8.0",
     "pinia": "^2.1.7",
     "prisma": "^5.22.0",
     "sqlite3": "^5.1.7",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1"
   }
 }

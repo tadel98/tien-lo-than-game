@@ -78,8 +78,13 @@ export default eventHandler(async (event) => {
       }
     })
 
-    // Initialize player resources
-    await initializePlayerResources(user.player!.id)
+    // Initialize player resources (with error handling)
+    try {
+      await initializePlayerResources(user.player!.id)
+    } catch (resourceError) {
+      console.warn('Failed to initialize player resources:', resourceError)
+      // Continue with registration even if resource initialization fails
+    }
 
     return {
       success: true,
@@ -108,18 +113,31 @@ export default eventHandler(async (event) => {
 })
 
 async function initializePlayerResources(playerId: string) {
-  // Get all resources
-  const resources = await prisma.resource.findMany()
-  
-  // Create player resources
-  const playerResources = resources.map(resource => ({
-    playerId,
-    resourceId: resource.id,
-    amount: 0,
-    locked: 0
-  }))
+  try {
+    // Get all resources
+    const resources = await prisma.resource.findMany()
+    
+    // If no resources exist, skip initialization
+    if (resources.length === 0) {
+      console.warn('No resources found in database. Skipping player resource initialization.')
+      return
+    }
+    
+    // Create player resources
+    const playerResources = resources.map(resource => ({
+      playerId,
+      resourceId: resource.id,
+      amount: 0,
+      locked: 0
+    }))
 
-  await prisma.playerResource.createMany({
-    data: playerResources
-  })
+    await prisma.playerResource.createMany({
+      data: playerResources
+    })
+    
+    console.log(`Initialized ${playerResources.length} resources for player ${playerId}`)
+  } catch (error) {
+    console.error('Error initializing player resources:', error)
+    throw error
+  }
 }
