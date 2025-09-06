@@ -18,7 +18,11 @@
     "db:cleanup": "node scripts/cleanup-database.js",
     "deploy:check": "echo 'Checking if deployment is needed...' && git diff --name-only HEAD~1 HEAD | grep -E '^(pages|components|stores|server|composables|utils|prisma|nuxt.config|package.json|vercel.json|tailwind.config|app.vue|assets)/' && echo 'Deployment needed' || echo 'No deployment needed'",
     "deploy:preview": "vercel --prod",
-    "deploy:production": "vercel --prod --confirm"
+    "deploy:production": "vercel --prod --confirm",
+    "deploy:now": "node scripts/deploy-now.js",
+    "deploy:delayed": "node scripts/deploy-delayed.js",
+    "deploy:5h": "node scripts/auto-deploy.js",
+    "deploy:custom": "node scripts/deploy-delayed.js"
   },
   "dependencies": {
     "@nuxt/devtools": "latest",
