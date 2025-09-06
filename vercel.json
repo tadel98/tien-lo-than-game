@@ -3,7 +3,7 @@
   "buildCommand": "node scripts/vercel-build.js",
   "installCommand": "npm install",
   "functions": {
-    "app/**": {
+    "server/api/**": {
       "maxDuration": 30
     }
   },
