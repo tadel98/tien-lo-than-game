@@ -117,6 +117,14 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-4 justify-center">
+          <!-- Test button để thêm EXP -->
+          <button
+            @click="addTestExp"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold text-sm"
+          >
+            +1000 EXP (Test)
+          </button>
+          
           <!-- Tầng 1-9: Đột phá tầng bình thường -->
           <button
             v-if="cultivationStore.canBreakthroughFloor && cultivationStore.currentFloor < 10"
@@ -212,6 +220,9 @@ const authStore = useAuthStore()
 const playerStore = usePlayerStore()
 const cultivationStore = useCultivationStore()
 
+// Composables
+const { checkAndAddDailyExp } = useCultivationAuto()
+
 // State
 const playerId = ref('')
 const showLevelUpNotification = ref(false)
@@ -236,8 +247,8 @@ const hideLevelUpNotification = () => {
   showLevelUpNotification.value = false
 }
 
-const attemptBreakthroughFloor = () => {
-  const success = cultivationStore.attemptBreakthroughFloor()
+const attemptBreakthroughFloor = async () => {
+  const success = await cultivationStore.attemptBreakthroughFloor(playerId.value)
   if (success) {
     console.log('Đột phá tầng thành công!')
   } else {
@@ -245,22 +256,22 @@ const attemptBreakthroughFloor = () => {
   }
 }
 
-const attemptBreakthroughRealm = () => {
-  const success = cultivationStore.attemptBreakthroughRealm()
+const attemptBreakthroughRealm = async () => {
+  const success = await cultivationStore.attemptBreakthroughRealm(playerId.value)
   if (success) {
     console.log('Đột phá cảnh giới thành công!')
   }
 }
 
-const breakthroughRealmFromFloor10 = () => {
-  const success = cultivationStore.breakthroughRealmFromFloor10()
+const breakthroughRealmFromFloor10 = async () => {
+  const success = await cultivationStore.breakthroughRealmFromFloor10(playerId.value)
   if (success) {
     console.log('Đột phá cảnh giới từ tầng 10 thành công! (Hạ Phẩm)')
   }
 }
 
-const attemptHighFloorBreakthrough = () => {
-  const success = cultivationStore.attemptHighFloorBreakthrough()
+const attemptHighFloorBreakthrough = async () => {
+  const success = await cultivationStore.attemptHighFloorBreakthrough(playerId.value)
   if (success) {
     console.log('Đột phá tầng cao thành công!')
   } else {
@@ -268,10 +279,17 @@ const attemptHighFloorBreakthrough = () => {
   }
 }
 
-const ascend = () => {
-  const success = cultivationStore.ascend()
+const ascend = async () => {
+  const success = await cultivationStore.ascend(playerId.value)
   if (success) {
     console.log('🎉 Chúc mừng! Bạn đã Phi Thăng thành công!')
+  }
+}
+
+const addTestExp = async () => {
+  if (playerId.value) {
+    await cultivationStore.addExp(1000, playerId.value)
+    console.log('Đã thêm 1000 EXP!')
   }
 }
 
@@ -288,7 +306,10 @@ onMounted(async () => {
     
     if (playerId.value) {
       await playerStore.initializePlayer(playerId.value)
-      // Cultivation system is now client-side only
+      // Load cultivation data from server
+      await cultivationStore.loadCultivationData(playerId.value)
+      // Check and add daily EXP
+      await checkAndAddDailyExp(playerId.value)
     } else {
       console.error('Không tìm thấy playerId:', authStore.user)
     }

@@ -36,6 +36,8 @@ export const useCultivationStore = defineStore('cultivation', () => {
     realm: number
   }>>([]) // Danh sách danh hiệu vĩnh cửu
   const hasAscended = ref(false) // Đã phi thăng chưa
+  const loading = ref(false)
+  const error = ref(null)
 
   // Getters
   const currentRealmDisplay = computed(() => {
@@ -116,20 +118,88 @@ export const useCultivationStore = defineStore('cultivation', () => {
   })
 
   // Actions
-  const addExp = (amount: number) => {
-    currentExp.value += amount
-    totalExpGained.value += amount
+  const loadCultivationData = async (playerId: string) => {
+    try {
+      loading.value = true
+      error.value = null
+      
+      const response = await $fetch(`/api/cultivation/status?playerId=${playerId}`)
+      
+      if (response.success && response.data.cultivation) {
+        const data = response.data.cultivation
+        currentRealm.value = data.currentRealm
+        currentFloor.value = data.currentFloor
+        currentExp.value = data.currentExp
+        totalExpGained.value = data.totalExpGained
+        currentQuality.value = data.currentQuality
+        eternalTitles.value = data.eternalTitles || []
+        hasAscended.value = data.hasAscended
+      }
+    } catch (err: any) {
+      error.value = err.message || 'Lỗi khi tải dữ liệu tu luyện'
+      console.error('Error loading cultivation data:', err)
+    } finally {
+      loading.value = false
+    }
   }
 
-  const breakthroughFloor = () => {
+  const saveCultivationData = async (playerId: string) => {
+    try {
+      loading.value = true
+      error.value = null
+      
+      const cultivationData = {
+        currentRealm: currentRealm.value,
+        currentFloor: currentFloor.value,
+        currentExp: currentExp.value,
+        totalExpGained: totalExpGained.value,
+        currentQuality: currentQuality.value,
+        eternalTitles: eternalTitles.value,
+        hasAscended: hasAscended.value
+      }
+
+      const response = await $fetch('/api/cultivation/update', {
+        method: 'POST',
+        body: {
+          playerId,
+          cultivationData
+        }
+      })
+      
+      if (!response.success) {
+        throw new Error('Lỗi khi lưu dữ liệu tu luyện')
+      }
+    } catch (err: any) {
+      error.value = err.message || 'Lỗi khi lưu dữ liệu tu luyện'
+      console.error('Error saving cultivation data:', err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const addExp = async (amount: number, playerId?: string) => {
+    currentExp.value += amount
+    totalExpGained.value += amount
+    
+    if (playerId) {
+      await saveCultivationData(playerId)
+    }
+  }
+
+  const breakthroughFloor = async (playerId?: string) => {
     if (currentFloor.value < FLOORS) {
       currentFloor.value++
+      
+      if (playerId) {
+        await saveCultivationData(playerId)
+      }
+      
       return true
     }
     return false
   }
 
-  const breakthroughRealm = (quality: string = 'Hạ Phẩm') => {
+  const breakthroughRealm = async (quality: string = 'Hạ Phẩm', playerId?: string) => {
     if (currentRealm.value < REALMS) {
       // Cập nhật phẩm chất
       currentQuality.value = quality
@@ -153,16 +223,20 @@ export const useCultivationStore = defineStore('cultivation', () => {
       currentRealm.value++
       currentFloor.value = 1
       
+      if (playerId) {
+        await saveCultivationData(playerId)
+      }
+      
       return true
     }
     return false
   }
 
-  const attemptBreakthroughFloor = () => {
+  const attemptBreakthroughFloor = async (playerId?: string) => {
     // Tầng 1-9: Đột phá bình thường
     if (currentFloor.value < 10) {
       if (currentExp.value >= expToNextFloorValue.value) {
-        return breakthroughFloor()
+        return await breakthroughFloor(playerId)
       }
       return false
     }
@@ -178,51 +252,56 @@ export const useCultivationStore = defineStore('cultivation', () => {
       const isSuccess = Math.random() < successRate
       
       if (isSuccess) {
-        return breakthroughFloor()
+        return await breakthroughFloor(playerId)
       } else {
         // Thất bại: Lên cảnh giới tiếp theo với phẩm chất tương ứng
         const quality = getQualityLevel(currentFloor.value)
-        return breakthroughRealm(quality)
+        return await breakthroughRealm(quality, playerId)
       }
     }
     
     return false
   }
 
-  const attemptBreakthroughRealm = () => {
+  const attemptBreakthroughRealm = async (playerId?: string) => {
     if (currentFloor.value >= FLOORS && currentExp.value >= expToNextRealm(currentRealm.value)) {
-      return breakthroughRealm('Hạ Phẩm')
+      return await breakthroughRealm('Hạ Phẩm', playerId)
     }
     return false
   }
 
   // Đột phá cảnh giới từ tầng 10 (Hạ Phẩm)
-  const breakthroughRealmFromFloor10 = () => {
+  const breakthroughRealmFromFloor10 = async (playerId?: string) => {
     if (!canBreakthroughFromFloor10Value.value) return false
-    return breakthroughRealm('Hạ Phẩm')
+    return await breakthroughRealm('Hạ Phẩm', playerId)
   }
 
   // Thử đột phá tầng cao (11-15)
-  const attemptHighFloorBreakthrough = () => {
+  const attemptHighFloorBreakthrough = async (playerId?: string) => {
     if (!canAttemptHighFloorsValue.value) return false
     
     const successRate = currentFloorSuccessRate.value
     const isSuccess = Math.random() < successRate
     
     if (isSuccess) {
-      return breakthroughFloor()
+      return await breakthroughFloor(playerId)
     } else {
       // Thất bại: Lên cảnh giới tiếp theo với phẩm chất tương ứng
       const quality = getQualityLevel(currentFloor.value)
-      return breakthroughRealm(quality)
+      return await breakthroughRealm(quality, playerId)
     }
   }
 
   // Phi thăng (chỉ ở cảnh giới cuối)
-  const ascend = () => {
+  const ascend = async (playerId?: string) => {
     if (!canAscend.value) return false
     
     hasAscended.value = true
+    
+    if (playerId) {
+      await saveCultivationData(playerId)
+    }
+    
     return true
   }
 
@@ -267,6 +346,8 @@ export const useCultivationStore = defineStore('cultivation', () => {
     currentQuality,
     eternalTitles,
     hasAscended,
+    loading,
+    error,
 
     // Getters
     currentRealmDisplay,
@@ -287,6 +368,8 @@ export const useCultivationStore = defineStore('cultivation', () => {
     canAscend,
 
     // Actions
+    loadCultivationData,
+    saveCultivationData,
     addExp,
     breakthroughFloor,
     breakthroughRealm,

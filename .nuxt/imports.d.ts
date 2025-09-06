@@ -30,6 +30,7 @@ export { requestIdleCallback, cancelIdleCallback } from '#app/compat/idle-callba
 export { setInterval } from '#app/compat/interval';
 export { defineLazyHydrationComponent } from '#app/composables/lazy-hydration';
 export { useAutoSave } from '../composables/useAutoSave';
+export { useCultivationAuto } from '../composables/useCultivationAuto';
 export { calculatePointsPerLevel, distributePoints, calculateCombatPower, calculateCombatPowerWithLevel } from '../utils/combat-power';
 export { calculateNextLevelExp, calculateLevelFromExp, calculateRealm, calculateTimeToNextLevel, calculateTotalTimeToMaxLevel, getRealmInfo } from '../utils/cultivation';
 export { expPerDay, expForRealm, totalExpToMax, daysToMax, getRealmName, expToNextFloor, getSuccessRate, expToNextRealm, expToCurrentLevel, calculateCultivationStats, getQualityLevel, getEternalTitle, calculatePowerMultiplier, getQualityColor, canBreakthroughFromFloor10, canAttemptHighFloors, BASE_EXP_PER_DAY, REALMS, FLOORS, REALM_GROWTH, FAIL_RATES, REALM_NAMES, QUALITY_LEVELS, ETERNAL_TITLES } from '../utils/expCalc';
