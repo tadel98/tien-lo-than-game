@@ -1,6 +1,6 @@
 # Tiên Lộ Thần - Game Tu Luyện
 
-Một web game tu luyện với giao diện đẹp mắt được xây dựng bằng Nuxt 3, Vue 3, Prisma và SQLite.
+Một web game tu luyện với giao diện đẹp mắt được xây dựng bằng Nuxt 3, Vue 3, Prisma và PostgreSQL.
 
 ## Tính năng
 
@@ -20,7 +20,7 @@ Một web game tu luyện với giao diện đẹp mắt được xây dựng b�
 - **Tailwind CSS** - CSS framework
 - **Pinia** - State management
 - **Prisma** - ORM cho database
-- **SQLite** - Database
+- **PostgreSQL** - Database (Neon)
 - **Node.js** - Backend runtime
 - **JWT** - Authentication
 
@@ -35,8 +35,11 @@ npm install
 
 2. **Cấu hình database:**
 ```bash
+# Tạo file .env với DATABASE_URL
+cp env.example .env
+
 # Tạo database và tables
-npm run db:push
+npx prisma db push
 
 # Seed dữ liệu mẫu
 npm run db:seed
@@ -97,7 +100,10 @@ npm run dev
 ├── prisma/
 │   └── schema.prisma        # Database schema
 ├── scripts/
-│   └── seed.js              # Seed script
+│   ├── seed.js              # Seed script
+│   ├── migrate-to-postgresql.js  # Migration script
+│   ├── verify-postgresql-migration.js  # Verification script
+│   └── cleanup-sqlite.js    # Cleanup script
 ├── app.vue                  # Root component
 ├── nuxt.config.ts          # Nuxt configuration
 ├── tailwind.config.js      # Tailwind configuration
@@ -112,6 +118,28 @@ npm run dev
 - `npm run db:push` - Push schema to database
 - `npm run db:seed` - Seed dữ liệu mẫu
 - `npm run db:reset` - Reset và seed lại database
+
+## Migration từ SQLite sang PostgreSQL
+
+Dự án đã được migrate từ SQLite sang PostgreSQL (Neon) để có hiệu suất tốt hơn và khả năng mở rộng.
+
+### Migration Scripts:
+- `scripts/migrate-to-postgresql.js` - Script migrate data chính
+- `scripts/verify-postgresql-migration.js` - Script verification
+- `scripts/cleanup-sqlite.js` - Script cleanup SQLite cũ
+- `POSTGRESQL_MIGRATION_SUMMARY.md` - Tài liệu migration chi tiết
+
+### Chạy Migration:
+```bash
+# Migrate data từ SQLite sang PostgreSQL
+node scripts/migrate-to-postgresql.js
+
+# Verify migration
+node scripts/verify-postgresql-migration.js
+
+# Cleanup SQLite cũ (tùy chọn)
+node scripts/cleanup-sqlite.js
+```
 
 ## Phát triển
 
