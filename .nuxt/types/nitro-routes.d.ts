@@ -45,11 +45,23 @@ declare module "nitropack/types" {
     '/api/cultivation/status': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/cultivation/status.get').default>>>>
     }
+    '/api/db-test': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/db-test.post').default>>>>
+    }
+    '/api/debug': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/debug.post').default>>>>
+    }
     '/api/furnace/craft': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/furnace/craft.post').default>>>>
     }
     '/api/furnace/status': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/furnace/status.get').default>>>>
+    }
+    '/api/health': {
+      'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/health.get').default>>>>
+    }
+    '/api/init-db': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/init-db.post').default>>>>
     }
     '/api/inventory/list': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/inventory/list.get').default>>>>
@@ -84,6 +96,9 @@ declare module "nitropack/types" {
     '/api/ranking/top-players': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/ranking/top-players.get').default>>>>
     }
+    '/api/regenerate-prisma': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/regenerate-prisma.post').default>>>>
+    }
     '/api/seed': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/seed.post').default>>>>
     }
@@ -113,6 +128,12 @@ declare module "nitropack/types" {
     }
     '/api/talent/upgrade': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/talent/upgrade.post').default>>>>
+    }
+    '/api/test-prisma': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/test-prisma.post').default>>>>
+    }
+    '/api/test': {
+      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/test.post').default>>>>
     }
     '/__nuxt_error': {
       'default': Simplify<Serialize<Awaited<ReturnType<typeof import('../../node_modules/nuxt/dist/core/runtime/nitro/handlers/renderer').default>>>>

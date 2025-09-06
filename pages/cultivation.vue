@@ -465,14 +465,28 @@ const menuItems = [
 onMounted(async () => {
   authStore.initializeAuth()
   
+  console.log('🔍 Debug auth state:', {
+    isAuthenticated: isAuthenticated.value,
+    user: authStore.user,
+    player: authStore.user?.player
+  })
+  
   if (isAuthenticated.value && authStore.user?.player) {
+    console.log('✅ User authenticated with player:', authStore.user.player.id)
     await playerStore.initializePlayer(authStore.user.player.id)
     await cultivationStore.fetchCultivationStatus(authStore.user.player.id)
     
     // Tự động bắt đầu tu luyện cơ bản khi vào trang
     if (canCultivate.value) {
+      console.log('🚀 Starting auto cultivation for player:', authStore.user.player.id)
       cultivationStore.startAutoCultivation(authStore.user.player.id, 'basic')
     }
+  } else {
+    console.log('❌ User not authenticated or no player:', {
+      isAuthenticated: isAuthenticated.value,
+      hasUser: !!authStore.user,
+      hasPlayer: !!authStore.user?.player
+    })
   }
   
   // Listen for level up events

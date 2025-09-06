@@ -134,6 +134,8 @@ export const useCultivationStore = defineStore('cultivation', () => {
 
   // Auto cultivation methods
   const startAutoCultivation = (playerId: string, cultivationType: string = 'basic') => {
+    console.log('🎯 Starting auto cultivation with playerId:', playerId)
+    
     if (autoCultivationInterval.value) {
       clearInterval(autoCultivationInterval.value)
     }
@@ -147,6 +149,7 @@ export const useCultivationStore = defineStore('cultivation', () => {
       }
       
       try {
+        console.log('🔄 Auto cultivating for player:', playerId)
         // Gọi API tu luyện tự động
         const response: any = await $fetch('/api/cultivation/auto-cultivate', {
           method: 'POST',
