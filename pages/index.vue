@@ -105,8 +105,11 @@
         </NuxtLink>
       </div>
 
-      <!-- Test Link -->
-      <div class="text-center">
+      <!-- Admin & Test Links -->
+      <div class="text-center space-x-4">
+        <NuxtLink to="/admin" class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+          🔧 Admin Panel
+        </NuxtLink>
         <NuxtLink to="/test" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
           🧪 Test Page
         </NuxtLink>
