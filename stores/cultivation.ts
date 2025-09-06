@@ -8,10 +8,18 @@ import {
   expToCurrentLevel,
   getSuccessRate,
   getRealmName,
+  getQualityLevel,
+  getEternalTitle,
+  calculatePowerMultiplier,
+  getQualityColor,
+  canBreakthroughFromFloor10,
+  canAttemptHighFloors,
   REALMS,
   FLOORS,
   FAIL_RATES,
-  REALM_NAMES
+  REALM_NAMES,
+  QUALITY_LEVELS,
+  ETERNAL_TITLES
 } from '../utils/expCalc'
 
 // Declare $fetch as global
@@ -25,10 +33,13 @@ export const useCultivationStore = defineStore('cultivation', () => {
   const error = ref(null)
 
   // New cultivation system state
-  const currentRealm = ref(1) // 1-7
+  const currentRealm = ref(1) // 1-9
   const currentFloor = ref(1) // 1-15
   const currentExp = ref(0)
   const totalExpGained = ref(0)
+  const currentQuality = ref('Hạ Phẩm') // Phẩm chất hiện tại
+  const eternalTitles = ref([]) // Danh sách danh hiệu vĩnh cửu
+  const hasAscended = ref(false) // Đã phi thăng chưa
 
 
   // Getters
@@ -76,6 +87,43 @@ export const useCultivationStore = defineStore('cultivation', () => {
 
   const expPerDayCurrent = computed(() => {
     return expPerDay(currentRealm.value)
+  })
+
+  // New quality and title system
+  const currentQualityLevel = computed(() => {
+    return getQualityLevel(currentFloor.value)
+  })
+
+  const currentQualityColor = computed(() => {
+    return getQualityColor(currentQuality.value)
+  })
+
+  const powerMultiplier = computed(() => {
+    return calculatePowerMultiplier(currentQuality.value)
+  })
+
+  const canBreakthroughFromFloor10Value = computed(() => {
+    return canBreakthroughFromFloor10(currentFloor.value)
+  })
+
+  const canAttemptHighFloorsValue = computed(() => {
+    return canAttemptHighFloors(currentFloor.value)
+  })
+
+  const isAtFloor10 = computed(() => {
+    return currentFloor.value === 10
+  })
+
+  const isAtFloor15 = computed(() => {
+    return currentFloor.value === 15
+  })
+
+  const isAtMaxRealm = computed(() => {
+    return currentRealm.value >= REALMS
+  })
+
+  const canAscend = computed(() => {
+    return isAtMaxRealm.value && isAtFloor15.value
   })
 
 
@@ -197,10 +245,27 @@ export const useCultivationStore = defineStore('cultivation', () => {
     return true
   }
 
-  const breakthroughRealm = () => {
-    if (!canBreakthroughRealm.value) return false
+  const breakthroughRealm = (quality = 'Hạ Phẩm') => {
+    if (!canBreakthroughRealm.value && !canBreakthroughFromFloor10Value.value) return false
     
-    currentExp.value -= expToNextRealm(currentRealm.value)
+    // Cập nhật phẩm chất
+    currentQuality.value = quality
+    
+    // Thêm danh hiệu vĩnh cửu nếu có
+    const title = getEternalTitle(currentFloor.value)
+    if (title && !eternalTitles.value.find(t => t.floor === currentFloor.value)) {
+      eternalTitles.value.push({
+        ...title,
+        floor: currentFloor.value,
+        realm: currentRealm.value
+      })
+    }
+    
+    // Trừ EXP nếu cần
+    if (currentExp.value >= expToNextRealm(currentRealm.value)) {
+      currentExp.value -= expToNextRealm(currentRealm.value)
+    }
+    
     currentRealm.value += 1
     currentFloor.value = 1
     
@@ -214,13 +279,35 @@ export const useCultivationStore = defineStore('cultivation', () => {
     if (isSuccess) {
       return breakthroughFloor()
     } else {
-      // Nếu thất bại ở tầng 15, tự động lên cảnh giới tiếp theo
-      if (currentFloor.value >= FLOORS) {
-        return breakthroughRealm()
+      // Nếu thất bại ở tầng 11-15, tự động lên cảnh giới tiếp theo với phẩm chất tương ứng
+      if (currentFloor.value >= 11) {
+        const quality = getQualityLevel(currentFloor.value)
+        return breakthroughRealm(quality)
       }
     }
     
     return false
+  }
+
+  // Đột phá cảnh giới từ tầng 10 (Hạ Phẩm)
+  const breakthroughRealmFromFloor10 = () => {
+    if (!canBreakthroughFromFloor10Value.value) return false
+    return breakthroughRealm('Hạ Phẩm')
+  }
+
+  // Thử đột phá tầng 11-15 (có phẩm chất cao)
+  const attemptHighFloorBreakthrough = () => {
+    if (!canAttemptHighFloorsValue.value) return false
+    return attemptBreakthroughFloor()
+  }
+
+  // Phi thăng (kết thúc game)
+  const ascend = () => {
+    if (!canAscend.value) return false
+    
+    hasAscended.value = true
+    console.log('🎉 Chúc mừng! Bạn đã Phi Thăng thành công!')
+    return true
   }
 
   const attemptBreakthroughRealm = () => {
@@ -273,6 +360,9 @@ export const useCultivationStore = defineStore('cultivation', () => {
     currentFloor,
     currentExp,
     totalExpGained,
+    currentQuality,
+    eternalTitles,
+    hasAscended,
 
     // Getters
     canCultivate,
@@ -285,6 +375,15 @@ export const useCultivationStore = defineStore('cultivation', () => {
     currentFloorSuccessRate,
     isMaxLevel,
     expPerDayCurrent,
+    currentQualityLevel,
+    currentQualityColor,
+    powerMultiplier,
+    canBreakthroughFromFloor10: canBreakthroughFromFloor10Value,
+    canAttemptHighFloors: canAttemptHighFloorsValue,
+    isAtFloor10,
+    isAtFloor15,
+    isAtMaxRealm,
+    canAscend,
 
     // Actions
     fetchCultivationStatus,
@@ -297,6 +396,9 @@ export const useCultivationStore = defineStore('cultivation', () => {
     breakthroughRealm,
     attemptBreakthroughFloor,
     attemptBreakthroughRealm,
+    breakthroughRealmFromFloor10,
+    attemptHighFloorBreakthrough,
+    ascend,
     getCultivationStats,
     resetCultivation,
     reset

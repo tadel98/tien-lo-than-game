@@ -2,8 +2,10 @@
 export {}
 declare global {
   const BASE_EXP_PER_DAY: typeof import('../../utils/expCalc')['BASE_EXP_PER_DAY']
+  const ETERNAL_TITLES: typeof import('../../utils/expCalc')['ETERNAL_TITLES']
   const FAIL_RATES: typeof import('../../utils/expCalc')['FAIL_RATES']
   const FLOORS: typeof import('../../utils/expCalc')['FLOORS']
+  const QUALITY_LEVELS: typeof import('../../utils/expCalc')['QUALITY_LEVELS']
   const REALMS: typeof import('../../utils/expCalc')['REALMS']
   const REALM_GROWTH: typeof import('../../utils/expCalc')['REALM_GROWTH']
   const REALM_NAMES: typeof import('../../utils/expCalc')['REALM_NAMES']
@@ -16,10 +18,13 @@ declare global {
   const calculateLevelFromExp: typeof import('../../utils/cultivation')['calculateLevelFromExp']
   const calculateNextLevelExp: typeof import('../../utils/cultivation')['calculateNextLevelExp']
   const calculatePointsPerLevel: typeof import('../../utils/combat-power')['calculatePointsPerLevel']
+  const calculatePowerMultiplier: typeof import('../../utils/expCalc')['calculatePowerMultiplier']
   const calculateRealm: typeof import('../../utils/cultivation')['calculateRealm']
   const calculateTimeToNextLevel: typeof import('../../utils/cultivation')['calculateTimeToNextLevel']
   const calculateTotalTimeToMaxLevel: typeof import('../../utils/cultivation')['calculateTotalTimeToMaxLevel']
   const callOnce: typeof import('../../node_modules/nuxt/dist/app/composables/once')['callOnce']
+  const canAttemptHighFloors: typeof import('../../utils/expCalc')['canAttemptHighFloors']
+  const canBreakthroughFromFloor10: typeof import('../../utils/expCalc')['canBreakthroughFromFloor10']
   const cancelIdleCallback: typeof import('../../node_modules/nuxt/dist/app/compat/idle-callback')['cancelIdleCallback']
   const clearError: typeof import('../../node_modules/nuxt/dist/app/composables/error')['clearError']
   const clearNuxtData: typeof import('../../node_modules/nuxt/dist/app/composables/asyncData')['clearNuxtData']
@@ -52,6 +57,9 @@ declare global {
   const getAppManifest: typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getAppManifest']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getEternalTitle: typeof import('../../utils/expCalc')['getEternalTitle']
+  const getQualityColor: typeof import('../../utils/expCalc')['getQualityColor']
+  const getQualityLevel: typeof import('../../utils/expCalc')['getQualityLevel']
   const getRealmInfo: typeof import('../../utils/cultivation')['getRealmInfo']
   const getRealmName: typeof import('../../utils/expCalc')['getRealmName']
   const getRouteRules: typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getRouteRules']
@@ -229,8 +237,10 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface ComponentCustomProperties {
     readonly BASE_EXP_PER_DAY: UnwrapRef<typeof import('../../utils/expCalc')['BASE_EXP_PER_DAY']>
+    readonly ETERNAL_TITLES: UnwrapRef<typeof import('../../utils/expCalc')['ETERNAL_TITLES']>
     readonly FAIL_RATES: UnwrapRef<typeof import('../../utils/expCalc')['FAIL_RATES']>
     readonly FLOORS: UnwrapRef<typeof import('../../utils/expCalc')['FLOORS']>
+    readonly QUALITY_LEVELS: UnwrapRef<typeof import('../../utils/expCalc')['QUALITY_LEVELS']>
     readonly REALMS: UnwrapRef<typeof import('../../utils/expCalc')['REALMS']>
     readonly REALM_GROWTH: UnwrapRef<typeof import('../../utils/expCalc')['REALM_GROWTH']>
     readonly REALM_NAMES: UnwrapRef<typeof import('../../utils/expCalc')['REALM_NAMES']>
@@ -243,10 +253,13 @@ declare module 'vue' {
     readonly calculateLevelFromExp: UnwrapRef<typeof import('../../utils/cultivation')['calculateLevelFromExp']>
     readonly calculateNextLevelExp: UnwrapRef<typeof import('../../utils/cultivation')['calculateNextLevelExp']>
     readonly calculatePointsPerLevel: UnwrapRef<typeof import('../../utils/combat-power')['calculatePointsPerLevel']>
+    readonly calculatePowerMultiplier: UnwrapRef<typeof import('../../utils/expCalc')['calculatePowerMultiplier']>
     readonly calculateRealm: UnwrapRef<typeof import('../../utils/cultivation')['calculateRealm']>
     readonly calculateTimeToNextLevel: UnwrapRef<typeof import('../../utils/cultivation')['calculateTimeToNextLevel']>
     readonly calculateTotalTimeToMaxLevel: UnwrapRef<typeof import('../../utils/cultivation')['calculateTotalTimeToMaxLevel']>
     readonly callOnce: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/once')['callOnce']>
+    readonly canAttemptHighFloors: UnwrapRef<typeof import('../../utils/expCalc')['canAttemptHighFloors']>
+    readonly canBreakthroughFromFloor10: UnwrapRef<typeof import('../../utils/expCalc')['canBreakthroughFromFloor10']>
     readonly cancelIdleCallback: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/compat/idle-callback')['cancelIdleCallback']>
     readonly clearError: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/error')['clearError']>
     readonly clearNuxtData: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/asyncData')['clearNuxtData']>
@@ -279,6 +292,9 @@ declare module 'vue' {
     readonly getAppManifest: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getAppManifest']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly getEternalTitle: UnwrapRef<typeof import('../../utils/expCalc')['getEternalTitle']>
+    readonly getQualityColor: UnwrapRef<typeof import('../../utils/expCalc')['getQualityColor']>
+    readonly getQualityLevel: UnwrapRef<typeof import('../../utils/expCalc')['getQualityLevel']>
     readonly getRealmInfo: UnwrapRef<typeof import('../../utils/cultivation')['getRealmInfo']>
     readonly getRealmName: UnwrapRef<typeof import('../../utils/expCalc')['getRealmName']>
     readonly getRouteRules: UnwrapRef<typeof import('../../node_modules/nuxt/dist/app/composables/manifest')['getRouteRules']>

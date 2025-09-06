@@ -104,35 +104,61 @@
           
           <div class="bg-gray-800/50 p-4 rounded-lg">
             <h4 class="text-sm font-semibold text-white mb-1">Cảnh giới hiện tại</h4>
-            <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/7</p>
+            <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/9</p>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex space-x-4 justify-center">
-            <button
-              v-if="cultivationStore.canBreakthroughFloor"
-              @click="attemptBreakthroughFloor"
-              class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold"
-            >
-              <span v-if="cultivationStore.currentFloor >= 15">🌟 Thử Đột Phá Cảnh Giới</span>
-              <span v-else>🚀 Đột Phá Tầng</span>
-            </button>
-          
+        <div class="flex flex-wrap gap-4 justify-center">
+          <!-- Tầng 1-9: Đột phá tầng bình thường -->
           <button
-            v-if="cultivationStore.canBreakthroughRealm"
-            @click="attemptBreakthroughRealm"
+            v-if="cultivationStore.canBreakthroughFloor && cultivationStore.currentFloor < 10"
+            @click="attemptBreakthroughFloor"
+            class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold"
+          >
+            🚀 Đột Phá Tầng
+          </button>
+
+          <!-- Tầng 10: Lựa chọn đột phá -->
+          <div v-if="cultivationStore.isAtFloor10" class="flex flex-col gap-2">
+            <button
+              @click="breakthroughRealmFromFloor10"
+              class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold"
+            >
+              🌟 Đột Phá Cảnh Giới (Hạ Phẩm)
+            </button>
+            <button
+              @click="attemptHighFloorBreakthrough"
+              class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
+            >
+              ⚡ Thử Tầng 11-15 (Phẩm Chất Cao)
+            </button>
+          </div>
+
+          <!-- Tầng 11-14: Thử đột phá tầng cao -->
+          <button
+            v-if="cultivationStore.canAttemptHighFloors && cultivationStore.currentFloor >= 11 && cultivationStore.currentFloor < 15"
+            @click="attemptHighFloorBreakthrough"
             class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
           >
-            🌟 Đột Phá Cảnh Giới
+            ⚡ Thử Đột Phá Tầng {{ cultivationStore.currentFloor + 1 }}
           </button>
-          
+
+          <!-- Tầng 15: Thử đột phá cảnh giới hoặc phi thăng -->
           <button
-            v-if="cultivationStore.isMaxLevel"
-            disabled
-            class="px-6 py-3 bg-gray-600 rounded-lg text-white font-semibold cursor-not-allowed"
+            v-if="cultivationStore.isAtFloor15 && !cultivationStore.canAscend"
+            @click="attemptHighFloorBreakthrough"
+            class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
           >
-            🏆 Đã Đạt Max Level
+            🌟 Thử Đột Phá Cảnh Giới
+          </button>
+
+          <button
+            v-if="cultivationStore.canAscend"
+            @click="ascend"
+            class="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 rounded-lg text-white font-bold text-lg"
+          >
+            🎉 PHI THĂNG!
           </button>
         </div>
       </div>
@@ -198,6 +224,29 @@ const attemptBreakthroughRealm = () => {
   const success = cultivationStore.attemptBreakthroughRealm()
   if (success) {
     console.log('Đột phá cảnh giới thành công!')
+  }
+}
+
+const breakthroughRealmFromFloor10 = () => {
+  const success = cultivationStore.breakthroughRealmFromFloor10()
+  if (success) {
+    console.log('Đột phá cảnh giới từ tầng 10 thành công! (Hạ Phẩm)')
+  }
+}
+
+const attemptHighFloorBreakthrough = () => {
+  const success = cultivationStore.attemptHighFloorBreakthrough()
+  if (success) {
+    console.log('Đột phá tầng cao thành công!')
+  } else {
+    console.log('Thất bại, nhưng đã lên cảnh giới tiếp theo!')
+  }
+}
+
+const ascend = () => {
+  const success = cultivationStore.ascend()
+  if (success) {
+    console.log('🎉 Chúc mừng! Bạn đã Phi Thăng thành công!')
   }
 }
 

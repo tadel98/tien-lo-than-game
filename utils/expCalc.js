@@ -4,7 +4,7 @@
 // CONFIG
 // =======================
 const BASE_EXP_PER_DAY = 2400000;  // Exp/ngày cảnh giới đầu (Luyện Khí)
-const REALMS = 7;                  // 7 cảnh giới
+const REALMS = 9;                  // 9 cảnh giới
 const FLOORS = 15;                 // 15 tầng mỗi cảnh giới
 const REALM_GROWTH = 0.05;         // +5% exp mỗi cảnh giới
 
@@ -24,9 +24,28 @@ const REALM_NAMES = [
   'Kim Đan',        // 3
   'Nguyên Anh',     // 4
   'Hóa Thần',       // 5
-  'Hợp Thể',        // 6
-  'Đại Thừa'        // 7
+  'Luyện Hư',       // 6
+  'Hợp Thể',        // 7
+  'Đại Thừa',       // 8
+  'Độ Kiếp'         // 9
 ];
+
+// Hệ thống phẩm chất
+const QUALITY_LEVELS = {
+  'Hạ Phẩm': { multiplier: 1.0, color: '#6b7280' },
+  'Trung Phẩm': { multiplier: 1.2, color: '#3b82f6' },
+  'Thượng Phẩm': { multiplier: 1.5, color: '#10b981' },
+  'Cực Phẩm': { multiplier: 2.0, color: '#f59e0b' }
+};
+
+// Danh hiệu vĩnh cửu cho từng tầng
+const ETERNAL_TITLES = {
+  11: { name: 'Thiên Tài Sơ Cấp', description: 'Tăng 5% tốc độ tu luyện' },
+  12: { name: 'Thiên Tài Trung Cấp', description: 'Tăng 10% tốc độ tu luyện' },
+  13: { name: 'Thiên Tài Cao Cấp', description: 'Tăng 15% tốc độ tu luyện' },
+  14: { name: 'Thiên Tài Tuyệt Đỉnh', description: 'Tăng 20% tốc độ tu luyện' },
+  15: { name: 'Thiên Tài Vô Song', description: 'Tăng 25% tốc độ tu luyện' }
+};
 
 // =======================
 // FUNCTIONS
@@ -167,5 +186,38 @@ export function calculateCultivationStats() {
   return result;
 }
 
+// Lấy phẩm chất dựa trên tầng đạt được
+export function getQualityLevel(floor) {
+  if (floor <= 10) return 'Hạ Phẩm'
+  if (floor <= 11) return 'Trung Phẩm'
+  if (floor <= 13) return 'Thượng Phẩm'
+  return 'Cực Phẩm'
+}
+
+// Lấy danh hiệu vĩnh cửu
+export function getEternalTitle(floor) {
+  return ETERNAL_TITLES[floor] || null
+}
+
+// Tính toán sức mạnh dựa trên phẩm chất
+export function calculatePowerMultiplier(quality) {
+  return QUALITY_LEVELS[quality]?.multiplier || 1.0
+}
+
+// Lấy màu sắc phẩm chất
+export function getQualityColor(quality) {
+  return QUALITY_LEVELS[quality]?.color || '#6b7280'
+}
+
+// Kiểm tra có thể đột phá cảnh giới từ tầng 10
+export function canBreakthroughFromFloor10(currentFloor) {
+  return currentFloor >= 10
+}
+
+// Kiểm tra có thể thử tầng 11-15
+export function canAttemptHighFloors(currentFloor) {
+  return currentFloor >= 10
+}
+
 // Export constants
-export { BASE_EXP_PER_DAY, REALMS, FLOORS, REALM_GROWTH, FAIL_RATES, REALM_NAMES };
+export { BASE_EXP_PER_DAY, REALMS, FLOORS, REALM_GROWTH, FAIL_RATES, REALM_NAMES, QUALITY_LEVELS, ETERNAL_TITLES };
