@@ -348,16 +348,31 @@ const startQuest = async (questId) => {
     
     if (!player.value?.id) {
       console.error('Player ID not found!')
+      alert('Lỗi: Không tìm thấy thông tin người chơi. Vui lòng đăng nhập lại.')
       return
     }
     
     const result = await questStore.startQuest(player.value.id, questId)
     console.log('Nhiệm vụ đã được nhận:', result.quest.displayName)
     
-    // Refresh player data
+    // Refresh quest list and player data
+    await questStore.fetchQuests(player.value.id)
     await playerStore.fetchResources(player.value.id)
+    
+    alert(`✅ Đã nhận nhiệm vụ: ${result.quest.displayName}`)
   } catch (err) {
     console.error('Lỗi nhận nhiệm vụ:', err)
+    
+    // Hiển thị thông báo lỗi cụ thể
+    let errorMessage = 'Có lỗi xảy ra khi nhận nhiệm vụ'
+    
+    if (err.data?.statusMessage) {
+      errorMessage = err.data.statusMessage
+    } else if (err.message) {
+      errorMessage = err.message
+    }
+    
+    alert(`❌ ${errorMessage}`)
   }
 }
 

@@ -114,17 +114,27 @@ export default eventHandler(async (event) => {
       data: {
         quest: {
           ...quest,
+          // Convert any BigInt fields to string
+          createdAt: quest.createdAt.toISOString(),
+          updatedAt: quest.updatedAt.toISOString(),
           playerStatus: {
             status: playerQuest.status,
             progress: JSON.parse(playerQuest.progress),
-            startedAt: playerQuest.startedAt,
-            completedAt: playerQuest.completedAt
+            startedAt: playerQuest.startedAt?.toISOString(),
+            completedAt: playerQuest.completedAt?.toISOString()
           }
         }
       }
     }
   } catch (error: any) {
     console.error('Start quest error:', error)
+    
+    // Nếu là lỗi business logic (400), giữ nguyên status code
+    if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+      throw error
+    }
+    
+    // Chỉ throw 500 cho lỗi server thực sự
     throw createError({
       statusCode: 500,
       statusMessage: error.message || 'Lỗi bắt đầu nhiệm vụ'
