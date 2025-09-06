@@ -35,6 +35,12 @@ export default defineNuxtConfig({
       include: ['@prisma/client']
     }
   },
+  experimental: {
+    payloadExtraction: false
+  },
+  typescript: {
+    typeCheck: false
+  },
   ssr: false,
   runtimeConfig: {
     // Private keys (only available on server-side)
