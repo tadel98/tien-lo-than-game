@@ -13,7 +13,11 @@ try {
   
   // Seed database
   console.log('🌱 Seeding database...');
-  execSync('node scripts/seed.js', { stdio: 'inherit' });
+  try {
+    execSync('node scripts/seed-all-game-data.js', { stdio: 'inherit' });
+  } catch (seedError) {
+    console.log('⚠️ Seeding failed, continuing...', seedError.message);
+  }
   
   console.log('✅ Post-build script completed successfully!');
 } catch (error) {

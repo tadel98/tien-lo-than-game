@@ -28,6 +28,9 @@ export default defineNuxtConfig({
       options: {
         target: 'es2020'
       }
+    },
+    rollupConfig: {
+      external: ['@prisma/client']
     }
   },
   vite: {
