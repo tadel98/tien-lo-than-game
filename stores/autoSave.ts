@@ -5,7 +5,7 @@ export const useAutoSaveStore = defineStore('autoSave', () => {
   // State
   const isEnabled = ref(true)
   const lastSaveTime = ref<Date | null>(null)
-  const saveInterval = ref(30000) // 30 seconds
+  const saveInterval = ref(6000) // 6 seconds
   const isSaving = ref(false)
   const saveError = ref<string | null>(null)
 
