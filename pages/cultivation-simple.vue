@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="text-center">
         <h1 class="text-4xl font-bold text-white mb-8">🧘 Tu Luyện Cơ Bản</h1>
-        <p class="text-gray-300 mb-8">Hệ thống tu luyện với 7 cảnh giới và 15 tầng mỗi cảnh giới</p>
+        <p class="text-gray-300 mb-8">Hệ thống tu luyện với 9 cảnh giới và 15 tầng mỗi cảnh giới</p>
         
         <!-- Cultivation Status -->
         <div class="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/30 max-w-4xl mx-auto mb-8">
@@ -53,36 +53,69 @@
             </div>
             
             <div class="bg-gray-800/50 p-4 rounded-lg">
-              <h4 class="text-sm font-semibold text-white mb-1">Tổng EXP cần</h4>
-              <p class="text-lg text-red-400">{{ totalExpToMax().toLocaleString() }}</p>
+              <h4 class="text-sm font-semibold text-white mb-1">Phẩm chất hiện tại</h4>
+              <p class="text-lg font-semibold" :style="{ color: cultivationStore.currentQualityColor }">
+                {{ cultivationStore.currentQuality }}
+              </p>
+            </div>
+            
+            <div class="bg-gray-800/50 p-4 rounded-lg">
+              <h4 class="text-sm font-semibold text-white mb-1">Cảnh giới hiện tại</h4>
+              <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/9</p>
             </div>
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex space-x-4 justify-center">
+          <div class="flex flex-wrap gap-4 justify-center">
+            <!-- Tầng 1-9: Đột phá tầng bình thường -->
             <button
-              v-if="canBreakthroughFloor"
+              v-if="cultivationStore.canBreakthroughFloor && cultivationStore.currentFloor < 10"
               @click="attemptBreakthroughFloor"
               class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold"
             >
-              <span v-if="currentFloor >= 15">🌟 Thử Đột Phá Cảnh Giới</span>
-              <span v-else>🚀 Đột Phá Tầng</span>
+              🚀 Đột Phá Tầng
             </button>
-            
+
+            <!-- Tầng 10: Lựa chọn đột phá -->
+            <div v-if="cultivationStore.isAtFloor10" class="flex flex-col gap-2">
+              <button
+                @click="breakthroughRealmFromFloor10"
+                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold"
+              >
+                🌟 Đột Phá Cảnh Giới (Hạ Phẩm)
+              </button>
+              <button
+                @click="attemptHighFloorBreakthrough"
+                class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
+              >
+                ⚡ Thử Tầng 11-15 (Phẩm Chất Cao)
+              </button>
+            </div>
+
+            <!-- Tầng 11-14: Thử đột phá tầng cao -->
             <button
-              v-if="canBreakthroughRealm"
-              @click="attemptBreakthroughRealm"
+              v-if="cultivationStore.canAttemptHighFloors && cultivationStore.currentFloor >= 11 && cultivationStore.currentFloor < 15"
+              @click="attemptHighFloorBreakthrough"
               class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
             >
-              🌟 Đột Phá Cảnh Giới
+              ⚡ Thử Đột Phá Tầng {{ cultivationStore.currentFloor + 1 }}
             </button>
-            
+
+            <!-- Tầng 15: Thử đột phá cảnh giới hoặc phi thăng -->
             <button
-              v-if="isMaxLevel"
-              disabled
-              class="px-6 py-3 bg-gray-600 rounded-lg text-white font-semibold cursor-not-allowed"
+              v-if="cultivationStore.isAtFloor15 && !cultivationStore.canAscend"
+              @click="attemptHighFloorBreakthrough"
+              class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
             >
-              🏆 Đã Đạt Max Level
+              🌟 Thử Đột Phá Cảnh Giới
+            </button>
+
+            <button
+              v-if="cultivationStore.canAscend"
+              @click="ascend"
+              class="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 rounded-lg text-white font-bold text-lg"
+            >
+              🎉 PHI THĂNG!
             </button>
           </div>
         </div>
@@ -92,7 +125,7 @@
           <h2 class="text-2xl font-bold text-white mb-6">📈 Tiến Độ Cảnh Giới</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <div
-              v-for="realmIndex in 7"
+              v-for="realmIndex in 9"
               :key="realmIndex"
               class="bg-gray-800/50 p-4 rounded-lg border-2"
               :class="[
@@ -168,7 +201,7 @@ const expPerDayCurrent = computed(() => cultivationStore.expPerDayCurrent)
 
 // Methods
 const getRealmName = (realmIndex) => {
-  const realmNames = ['Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Hợp Thể', 'Đại Thừa']
+  const realmNames = ['Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Luyện Hư', 'Hợp Thể', 'Đại Thừa', 'Độ Kiếp']
   return realmNames[realmIndex - 1] || 'Unknown'
 }
 
@@ -196,6 +229,29 @@ const attemptBreakthroughRealm = () => {
   const success = cultivationStore.attemptBreakthroughRealm()
   if (success) {
     console.log('Đột phá cảnh giới thành công!')
+  }
+}
+
+const breakthroughRealmFromFloor10 = () => {
+  const success = cultivationStore.breakthroughRealmFromFloor10()
+  if (success) {
+    console.log('Đột phá cảnh giới từ tầng 10 thành công! (Hạ Phẩm)')
+  }
+}
+
+const attemptHighFloorBreakthrough = () => {
+  const success = cultivationStore.attemptHighFloorBreakthrough()
+  if (success) {
+    console.log('Đột phá tầng cao thành công!')
+  } else {
+    console.log('Thất bại, nhưng đã lên cảnh giới tiếp theo!')
+  }
+}
+
+const ascend = () => {
+  const success = cultivationStore.ascend()
+  if (success) {
+    console.log('🎉 Chúc mừng! Bạn đã Phi Thăng thành công!')
   }
 }
 

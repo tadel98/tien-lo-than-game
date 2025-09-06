@@ -66,11 +66,19 @@ export const useCultivationStore = defineStore('cultivation', () => {
   })
 
   const canBreakthroughFloor = computed(() => {
-    // Nếu ở tầng 15, luôn có thể thử đột phá (thất bại sẽ lên cảnh giới tiếp theo)
-    if (currentFloor.value >= FLOORS) {
+    // Tầng 1-9: Cần đủ EXP
+    if (currentFloor.value < 10) {
+      return currentExp.value >= expToNextFloorValue.value
+    }
+    // Tầng 10: Luôn có thể thử (có 2 lựa chọn)
+    if (currentFloor.value === 10) {
       return true
     }
-    return currentExp.value >= expToNextFloorValue.value
+    // Tầng 11-15: Luôn có thể thử (thất bại sẽ lên cảnh giới tiếp theo)
+    if (currentFloor.value >= 11) {
+      return true
+    }
+    return false
   })
 
   const canBreakthroughRealm = computed(() => {
@@ -219,13 +227,15 @@ export const useCultivationStore = defineStore('cultivation', () => {
 
   const getRealmColor = (realm: string) => {
     const realmColors = {
-      'Luyện Khí': '#3b82f6',
-      'Trúc Cơ': '#10b981',
-      'Kim Đan': '#f59e0b',
-      'Nguyên Anh': '#ef4444',
-      'Hóa Thần': '#8b5cf6',
-      'Hợp Thể': '#f97316',
-      'Đại Thừa': '#8b5cf6'
+      'Luyện Khí': '#3b82f6',      // Blue
+      'Trúc Cơ': '#10b981',         // Green
+      'Kim Đan': '#f59e0b',         // Yellow
+      'Nguyên Anh': '#ef4444',      // Red
+      'Hóa Thần': '#8b5cf6',        // Purple
+      'Luyện Hư': '#06b6d4',        // Cyan
+      'Hợp Thể': '#f97316',         // Orange
+      'Đại Thừa': '#ec4899',        // Pink
+      'Độ Kiếp': '#fbbf24'          // Gold
     }
     return realmColors[realm] || '#6b7280'
   }
@@ -273,14 +283,28 @@ export const useCultivationStore = defineStore('cultivation', () => {
   }
 
   const attemptBreakthroughFloor = () => {
-    const successRate = currentFloorSuccessRate.value
-    const isSuccess = Math.random() < successRate
+    // Tầng 1-9: Đột phá bình thường
+    if (currentFloor.value < 10) {
+      if (currentExp.value >= expToNextFloorValue.value) {
+        return breakthroughFloor()
+      }
+      return false
+    }
     
-    if (isSuccess) {
-      return breakthroughFloor()
-    } else {
-      // Nếu thất bại ở tầng 11-15, tự động lên cảnh giới tiếp theo với phẩm chất tương ứng
-      if (currentFloor.value >= 11) {
+    // Tầng 10: Không nên gọi function này, nên dùng các function chuyên biệt
+    if (currentFloor.value === 10) {
+      return false
+    }
+    
+    // Tầng 11-15: Thử đột phá với rủi ro
+    if (currentFloor.value >= 11) {
+      const successRate = currentFloorSuccessRate.value
+      const isSuccess = Math.random() < successRate
+      
+      if (isSuccess) {
+        return breakthroughFloor()
+      } else {
+        // Thất bại: Lên cảnh giới tiếp theo với phẩm chất tương ứng
         const quality = getQualityLevel(currentFloor.value)
         return breakthroughRealm(quality)
       }
@@ -337,6 +361,9 @@ export const useCultivationStore = defineStore('cultivation', () => {
     currentFloor.value = 1
     currentExp.value = 0
     totalExpGained.value = 0
+    currentQuality.value = 'Hạ Phẩm'
+    eternalTitles.value = []
+    hasAscended.value = false
   }
 
 

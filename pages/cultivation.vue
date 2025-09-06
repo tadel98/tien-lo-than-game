@@ -163,6 +163,24 @@
         </div>
       </div>
 
+      <!-- Eternal Titles Display -->
+      <div v-if="cultivationStore.eternalTitles.length > 0" class="mb-8">
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-yellow-500/30 max-w-4xl mx-auto">
+          <h2 class="text-2xl font-bold text-white mb-6 text-center">🏆 Danh Hiệu Vĩnh Cửu</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div
+              v-for="title in cultivationStore.eternalTitles"
+              :key="`${title.realm}-${title.floor}`"
+              class="bg-gradient-to-r from-yellow-900/20 to-orange-900/20 p-4 rounded-lg border border-yellow-500/30"
+            >
+              <h3 class="text-lg font-bold text-yellow-400 mb-2">{{ title.name }}</h3>
+              <p class="text-sm text-gray-300 mb-1">{{ title.description }}</p>
+              <p class="text-xs text-gray-400">{{ getRealmName(title.realm) }} - Tầng {{ title.floor }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Grid layout đơn giản -->
       <div class="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Quest & Combat Panel -->
@@ -248,6 +266,11 @@ const ascend = () => {
   if (success) {
     console.log('🎉 Chúc mừng! Bạn đã Phi Thăng thành công!')
   }
+}
+
+const getRealmName = (realmIndex) => {
+  const realmNames = ['Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Luyện Hư', 'Hợp Thể', 'Đại Thừa', 'Độ Kiếp']
+  return realmNames[realmIndex - 1] || 'Unknown'
 }
 
 // Initialize
