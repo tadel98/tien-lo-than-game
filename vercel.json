@@ -1,3 +1,13 @@
 {
-  "framework": "nuxtjs"
+  "framework": "nuxtjs",
+  "buildCommand": "node scripts/vercel-build.js",
+  "installCommand": "npm install",
+  "functions": {
+    "app/**": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "PRISMA_GENERATE_DATAPROXY": "false"
+  }
 }
