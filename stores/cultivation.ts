@@ -159,6 +159,8 @@ export const useCultivationStore = defineStore('cultivation', () => {
           }
         })
         
+        console.log('✅ Auto cultivation response:', response.data)
+        
         // Cập nhật trạng thái tu luyện
         await fetchCultivationStatus(playerId)
         
@@ -174,13 +176,16 @@ export const useCultivationStore = defineStore('cultivation', () => {
               }
             }))
           }
+        } else {
+          console.log(`📈 EXP gained: +${response.data.cultivation.expGained}, Total: ${response.data.cultivation.newExp}`)
         }
         
       } catch (err) {
-        console.error('Auto cultivation error:', err)
-        stopAutoCultivation()
+        console.error('❌ Auto cultivation error:', err)
+        // Không dừng auto cultivation khi có lỗi, chỉ log
+        console.log('🔄 Retrying auto cultivation in next cycle...')
       }
-    }, 6000) // Tu luyện mỗi 6 giây
+    }, 3000) // Tu luyện mỗi 3 giây để test nhanh hơn
   }
 
   const stopAutoCultivation = () => {

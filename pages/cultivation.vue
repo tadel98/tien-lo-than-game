@@ -424,7 +424,10 @@ const handleBreakthrough = async () => {
 
 const toggleAutoCultivation = (cultivationType) => {
   if (player.value?.id) {
+    console.log('🎯 Toggling auto cultivation:', { playerId: player.value.id, type: cultivationType })
     cultivationStore.toggleAutoCultivation(player.value.id, cultivationType)
+  } else {
+    console.error('❌ No player ID found for auto cultivation')
   }
 }
 
@@ -440,6 +443,22 @@ const showLevelUp = (levelGain, newLevel) => {
 const hideLevelUpNotification = () => {
   showLevelUpNotification.value = false
 }
+
+// Listen for level up events from auto cultivation
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('levelUp', (event) => {
+      console.log('🎉 Level up event received:', event.detail)
+      showLevelUp(event.detail.levelGain, event.detail.newLevel)
+    })
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('levelUp', () => {})
+  }
+})
 
 // Menu items data
 const menuItems = [

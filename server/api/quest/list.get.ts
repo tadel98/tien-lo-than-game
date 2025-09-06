@@ -59,8 +59,31 @@ export default eventHandler(async (event) => {
       }
 
       if (playerQuest) {
-        // Xử lý quest lặp lại
-        if (quest.isRepeatable && playerQuest.status === 'cooldown') {
+        // Kiểm tra level requirement trước
+        let canAccess = true
+        try {
+          const requirements = JSON.parse(quest.requirements || '{}')
+          const requiredLevel = requirements.level || 1
+          if (player && player.level < requiredLevel) {
+            canAccess = false
+          }
+        } catch (e) {
+          console.error('Error parsing quest requirements:', e)
+        }
+
+        if (!canAccess) {
+          // Player level không đủ, hiển thị locked
+          playerStatus = {
+            status: 'locked',
+            progress: {},
+            startedAt: null,
+            completedAt: null,
+            lastCompletedAt: playerQuest.lastCompletedAt,
+            cooldownUntil: null,
+            canRepeat: false
+          }
+        } else if (quest.isRepeatable && playerQuest.status === 'cooldown') {
+          // Xử lý quest lặp lại
           const cooldownUntil = playerQuest.cooldownUntil ? new Date(playerQuest.cooldownUntil) : null
           
           if (cooldownUntil && now >= cooldownUntil) {
@@ -108,9 +131,16 @@ export default eventHandler(async (event) => {
           
           if (player && player.level < requiredLevel) {
             playerStatus.status = 'locked'
+            playerStatus.canRepeat = false
+          } else {
+            playerStatus.status = 'available'
+            playerStatus.canRepeat = quest.isRepeatable
           }
         } catch (e) {
           console.error('Error parsing quest requirements:', e)
+          // Nếu không parse được requirements, cho phép quest available
+          playerStatus.status = 'available'
+          playerStatus.canRepeat = quest.isRepeatable
         }
       }
 
