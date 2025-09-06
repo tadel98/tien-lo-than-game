@@ -44,14 +44,12 @@ export const useAutoSaveStore = defineStore('autoSave', () => {
       // Get all stores using dynamic import to avoid TypeScript errors
       const { usePlayerStore } = await import('./player')
       const { useCharacterStore } = await import('./character')
-      const { useCultivationStore } = await import('./cultivation')
       const { useQuestStore } = await import('./quest')
       const { useSpiritBeastStore } = await import('./spiritBeast')
       const { useTalentStore } = await import('./talent')
 
       const playerStore = usePlayerStore()
       const characterStore = useCharacterStore()
-      const cultivationStore = useCultivationStore()
       const questStore = useQuestStore()
       const spiritBeastStore = useSpiritBeastStore()
       const talentStore = useTalentStore()
@@ -80,12 +78,6 @@ export const useAutoSaveStore = defineStore('autoSave', () => {
         await characterStore.updateStats(playerId, characterStore.stats.base)
       }
 
-      // Save cultivation progress
-      if (cultivationStore.cultivationStatus) {
-        // Note: cultivation store doesn't have updateCultivationProgress method
-        // This would need to be implemented in the cultivation store
-        // console.log('Cultivation data save not implemented yet')
-      }
 
       lastSaveTime.value = new Date()
       // console.log('Auto-save completed at:', lastSaveTime.value.toLocaleTimeString())

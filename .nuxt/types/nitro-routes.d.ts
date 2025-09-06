@@ -42,18 +42,6 @@ declare module "nitropack/types" {
     '/api/combat/fight': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/combat/fight.post').default>>>>
     }
-    '/api/cultivation/auto-cultivate': {
-      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/cultivation/auto-cultivate.post').default>>>>
-    }
-    '/api/cultivation/breakthrough': {
-      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/cultivation/breakthrough.post').default>>>>
-    }
-    '/api/cultivation/start': {
-      'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/cultivation/start.post').default>>>>
-    }
-    '/api/cultivation/status': {
-      'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/cultivation/status.get').default>>>>
-    }
     '/api/furnace/craft': {
       'post': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/furnace/craft.post').default>>>>
     }

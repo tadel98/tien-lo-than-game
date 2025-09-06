@@ -288,7 +288,7 @@ onMounted(async () => {
     
     if (playerId.value) {
       await playerStore.initializePlayer(playerId.value)
-      await cultivationStore.fetchCultivationStatus(playerId.value)
+      // Cultivation system is now client-side only
     } else {
       console.error('Không tìm thấy playerId:', authStore.user)
     }

@@ -22,17 +22,8 @@ import {
   ETERNAL_TITLES
 } from '../utils/expCalc'
 
-// Declare $fetch as global
-declare const $fetch: any
-
 export const useCultivationStore = defineStore('cultivation', () => {
-  // State
-  const cultivationStatus = ref<any>(null)
-  const isCultivating = ref(false)
-  const loading = ref(false)
-  const error = ref(null)
-
-  // New cultivation system state
+  // State - Chỉ hệ thống mới
   const currentRealm = ref(1) // 1-9
   const currentFloor = ref(1) // 1-15
   const currentExp = ref(0)
@@ -46,24 +37,9 @@ export const useCultivationStore = defineStore('cultivation', () => {
   }>>([]) // Danh sách danh hiệu vĩnh cửu
   const hasAscended = ref(false) // Đã phi thăng chưa
 
-
   // Getters
-  const canCultivate = computed(() => {
-    return cultivationStatus.value?.canCultivate || false
-  })
-
-  const canBreakthrough = computed(() => {
-    if (!cultivationStatus.value) return false
-    const { currentExp, nextLevelExp } = cultivationStatus.value.cultivation
-    return currentExp >= nextLevelExp
-  })
-
-  const progressPercentage = computed(() => {
-    return cultivationStatus.value?.cultivation?.progressPercentage || 0
-  })
-
   const currentRealmDisplay = computed(() => {
-    return `${getRealmName(currentRealm.value)} Tầng ${currentFloor.value}`
+    return getRealmName(currentRealm.value)
   })
 
   const expToNextFloorValue = computed(() => {
@@ -102,9 +78,9 @@ export const useCultivationStore = defineStore('cultivation', () => {
     return expPerDay(currentRealm.value)
   })
 
-  // New quality and title system
+  // New Xianxia system getters
   const currentQualityLevel = computed(() => {
-    return getQualityLevel(currentFloor.value)
+    return currentQuality.value
   })
 
   const currentQualityColor = computed(() => {
@@ -136,155 +112,50 @@ export const useCultivationStore = defineStore('cultivation', () => {
   })
 
   const canAscend = computed(() => {
-    return isAtMaxRealm.value && isAtFloor15.value
+    return isAtMaxRealm.value && isAtFloor15.value && !hasAscended.value
   })
 
-
   // Actions
-  const fetchCultivationStatus = async (playerId: string) => {
-    try {
-      loading.value = true
-      error.value = null
-
-      const response: any = await $fetch(`/api/cultivation/status?playerId=${playerId}`)
-      cultivationStatus.value = response.data
-    } catch (err: any) {
-      error.value = err.message
-      console.error('Error fetching cultivation status:', err)
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const startCultivation = async (playerId: string, cultivationType: string = 'basic') => {
-    try {
-      loading.value = true
-      error.value = null
-      isCultivating.value = true
-
-      const response: any = await $fetch('/api/cultivation/start', {
-        method: 'POST',
-        body: {
-          playerId,
-          cultivationType
-        }
-      })
-
-      // Cập nhật trạng thái tu luyện
-      await fetchCultivationStatus(playerId)
-
-      return response.data
-    } catch (err: any) {
-      error.value = err.message
-      console.error('Error starting cultivation:', err)
-      throw err
-    } finally {
-      loading.value = false
-      isCultivating.value = false
-    }
-  }
-
-  const breakthrough = async (playerId: string) => {
-    try {
-      loading.value = true
-      error.value = null
-
-      const response: any = await $fetch('/api/cultivation/breakthrough', {
-        method: 'POST',
-        body: {
-          playerId
-        }
-      })
-
-      // Cập nhật trạng thái tu luyện
-      await fetchCultivationStatus(playerId)
-
-      return response.data
-    } catch (err: any) {
-      error.value = err.message
-      console.error('Error breakthrough:', err)
-      throw err
-    } finally {
-      loading.value = false
-    }
-  }
-
-  const getCultivationInfo = (level: number) => {
-    const realms = [
-      { name: 'Phàm cảnh', min: 1, max: 9, color: '#6b7280' },
-      { name: 'Luyện Khí cảnh', min: 10, max: 49, color: '#3b82f6' },
-      { name: 'Trúc Cơ cảnh', min: 50, max: 99, color: '#10b981' },
-      { name: 'Kim Đan cảnh', min: 100, max: 199, color: '#f59e0b' },
-      { name: 'Nguyên Anh cảnh', min: 200, max: 499, color: '#ef4444' },
-      { name: 'Hóa Thần cảnh', min: 500, max: 999, color: '#8b5cf6' },
-      { name: 'Hợp Thể cảnh', min: 1000, max: 1000, color: '#f97316' } // Cảnh giới cao nhất
-    ]
-
-    const currentRealm = realms.find(realm => level >= realm.min && level <= realm.max) || realms[0]
-    const nextRealm = realms.find(realm => realm.min > level) || realms[realms.length - 1]
-
-    return {
-      currentRealm,
-      nextRealm,
-      isMaxLevel: level >= 1000 // Cảnh giới cao nhất là level 1000
-    }
-  }
-
-  const getRealmColor = (realm: string) => {
-    const realmColors = {
-      'Luyện Khí': '#3b82f6',      // Blue
-      'Trúc Cơ': '#10b981',         // Green
-      'Kim Đan': '#f59e0b',         // Yellow
-      'Nguyên Anh': '#ef4444',      // Red
-      'Hóa Thần': '#8b5cf6',        // Purple
-      'Luyện Hư': '#06b6d4',        // Cyan
-      'Hợp Thể': '#f97316',         // Orange
-      'Đại Thừa': '#ec4899',        // Pink
-      'Độ Kiếp': '#fbbf24'          // Gold
-    }
-    return realmColors[realm] || '#6b7280'
-  }
-
-  // New cultivation system actions
   const addExp = (amount: number) => {
     currentExp.value += amount
     totalExpGained.value += amount
   }
 
   const breakthroughFloor = () => {
-    if (!canBreakthroughFloor.value) return false
-    
-    currentExp.value -= expToNextFloorValue.value
-    currentFloor.value += 1
-    
-    return true
+    if (currentFloor.value < FLOORS) {
+      currentFloor.value++
+      return true
+    }
+    return false
   }
 
-  const breakthroughRealm = (quality = 'Hạ Phẩm') => {
-    if (!canBreakthroughRealm.value && !canBreakthroughFromFloor10Value.value) return false
-    
-    // Cập nhật phẩm chất
-    currentQuality.value = quality
-    
-    // Thêm danh hiệu vĩnh cửu nếu có
-    const title = getEternalTitle(currentFloor.value)
-    if (title && !eternalTitles.value.find((t: any) => t.floor === currentFloor.value)) {
-      eternalTitles.value.push({
-        ...title,
-        floor: currentFloor.value,
-        realm: currentRealm.value
-      })
+  const breakthroughRealm = (quality: string = 'Hạ Phẩm') => {
+    if (currentRealm.value < REALMS) {
+      // Cập nhật phẩm chất
+      currentQuality.value = quality
+      
+      // Thêm danh hiệu vĩnh cửu nếu có
+      const title = getEternalTitle(currentFloor.value)
+      if (title && !eternalTitles.value.find((t: any) => t.floor === currentFloor.value)) {
+        eternalTitles.value.push({
+          ...title,
+          floor: currentFloor.value,
+          realm: currentRealm.value
+        })
+      }
+      
+      // Trừ EXP nếu cần
+      if (currentExp.value >= expToNextRealm(currentRealm.value)) {
+        currentExp.value -= expToNextRealm(currentRealm.value)
+      }
+      
+      // Lên cảnh giới tiếp theo
+      currentRealm.value++
+      currentFloor.value = 1
+      
+      return true
     }
-    
-    // Trừ EXP nếu cần
-    if (currentExp.value >= expToNextRealm(currentRealm.value)) {
-      currentExp.value -= expToNextRealm(currentRealm.value)
-    }
-    
-    currentRealm.value += 1
-    currentFloor.value = 1
-    
-    return true
+    return false
   }
 
   const attemptBreakthroughFloor = () => {
@@ -318,32 +189,41 @@ export const useCultivationStore = defineStore('cultivation', () => {
     return false
   }
 
+  const attemptBreakthroughRealm = () => {
+    if (currentFloor.value >= FLOORS && currentExp.value >= expToNextRealm(currentRealm.value)) {
+      return breakthroughRealm('Hạ Phẩm')
+    }
+    return false
+  }
+
   // Đột phá cảnh giới từ tầng 10 (Hạ Phẩm)
   const breakthroughRealmFromFloor10 = () => {
     if (!canBreakthroughFromFloor10Value.value) return false
     return breakthroughRealm('Hạ Phẩm')
   }
 
-  // Thử đột phá tầng 11-15 (có phẩm chất cao)
+  // Thử đột phá tầng cao (11-15)
   const attemptHighFloorBreakthrough = () => {
     if (!canAttemptHighFloorsValue.value) return false
-    return attemptBreakthroughFloor()
+    
+    const successRate = currentFloorSuccessRate.value
+    const isSuccess = Math.random() < successRate
+    
+    if (isSuccess) {
+      return breakthroughFloor()
+    } else {
+      // Thất bại: Lên cảnh giới tiếp theo với phẩm chất tương ứng
+      const quality = getQualityLevel(currentFloor.value)
+      return breakthroughRealm(quality)
+    }
   }
 
-  // Phi thăng (kết thúc game)
+  // Phi thăng (chỉ ở cảnh giới cuối)
   const ascend = () => {
     if (!canAscend.value) return false
     
     hasAscended.value = true
-    console.log('🎉 Chúc mừng! Bạn đã Phi Thăng thành công!')
     return true
-  }
-
-  const attemptBreakthroughRealm = () => {
-    if (canBreakthroughRealm.value) {
-      return breakthroughRealm()
-    }
-    return false
   }
 
   const getCultivationStats = () => {
@@ -351,8 +231,11 @@ export const useCultivationStore = defineStore('cultivation', () => {
       currentRealm: currentRealm.value,
       currentFloor: currentFloor.value,
       currentExp: currentExp.value,
+      totalExpGained: totalExpGained.value,
+      currentQuality: currentQuality.value,
+      eternalTitles: eternalTitles.value,
+      hasAscended: hasAscended.value,
       expToNextFloor: expToNextFloorValue.value,
-      expToNextRealm: expToNextRealm(currentRealm.value),
       canBreakthroughFloor: canBreakthroughFloor.value,
       canBreakthroughRealm: canBreakthroughRealm.value,
       successRate: currentFloorSuccessRate.value,
@@ -371,23 +254,12 @@ export const useCultivationStore = defineStore('cultivation', () => {
     hasAscended.value = false
   }
 
-
-
-  // Reset store
   const reset = () => {
-    cultivationStatus.value = null
-    isCultivating.value = false
-    loading.value = false
-    error.value = null
     resetCultivation()
   }
 
   return {
     // State
-    cultivationStatus,
-    isCultivating,
-    loading,
-    error,
     currentRealm,
     currentFloor,
     currentExp,
@@ -397,9 +269,6 @@ export const useCultivationStore = defineStore('cultivation', () => {
     hasAscended,
 
     // Getters
-    canCultivate,
-    canBreakthrough,
-    progressPercentage,
     currentRealmDisplay,
     expToNextFloor: expToNextFloorValue,
     canBreakthroughFloor,
@@ -418,11 +287,6 @@ export const useCultivationStore = defineStore('cultivation', () => {
     canAscend,
 
     // Actions
-    fetchCultivationStatus,
-    startCultivation,
-    breakthrough,
-    getCultivationInfo,
-    getRealmColor,
     addExp,
     breakthroughFloor,
     breakthroughRealm,

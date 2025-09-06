@@ -122,21 +122,18 @@ export const useAuthStore = defineStore('auth', () => {
       // Reset all stores using dynamic import
       const { usePlayerStore } = await import('./player')
       const { useCharacterStore } = await import('./character')
-      const { useCultivationStore } = await import('./cultivation')
       const { useQuestStore } = await import('./quest')
       const { useSpiritBeastStore } = await import('./spiritBeast')
       const { useTalentStore } = await import('./talent')
 
       const playerStore = usePlayerStore()
       const characterStore = useCharacterStore()
-      const cultivationStore = useCultivationStore()
       const questStore = useQuestStore()
       const spiritBeastStore = useSpiritBeastStore()
       const talentStore = useTalentStore()
 
       playerStore.reset()
       characterStore.reset()
-      cultivationStore.reset()
       questStore.reset()
       spiritBeastStore.reset()
       talentStore.reset()
