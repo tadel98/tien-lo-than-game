@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client'
 import { readBody, eventHandler, createError } from 'h3'
-import { $fetch } from 'ofetch'
 
 const prisma = new PrismaClient()
 
