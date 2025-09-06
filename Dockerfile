@@ -11,9 +11,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY .npmrc ./
 
-# Clean install dependencies
-RUN rm -rf node_modules package-lock.json && \
-    npm install --legacy-peer-deps --force
+# Install dependencies
+RUN npm install --legacy-peer-deps --force
 
 # Copy source code
 COPY . .
@@ -28,4 +27,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", ".output/server/index.mjs"]

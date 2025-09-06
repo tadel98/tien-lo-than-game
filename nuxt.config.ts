@@ -27,9 +27,6 @@ export default defineNuxtConfig({
       options: {
         target: 'es2020'
       }
-    },
-    rollupConfig: {
-      external: ['@prisma/client']
     }
   },
   vite: {
@@ -60,5 +57,9 @@ export default defineNuxtConfig({
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api'
     }
+  },
+  server: {
+    port: process.env.PORT || 3000,
+    host: '0.0.0.0'
   }
 })

@@ -1,0 +1,14 @@
+node_modules
+.git
+.github
+.output
+.nuxt
+dist
+*.log
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db
+README.md
+DEPLOYMENT*.md
+railway-env.example
