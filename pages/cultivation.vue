@@ -150,7 +150,7 @@
             @click="addTestExp"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold text-sm"
           >
-            +1000 EXP (Test)
+            +{{ cultivationStore.expPerDayCurrent.toLocaleString() }} EXP (Test)
           </button>
           
           <!-- Tầng 1-9: Đột phá tầng bình thường -->
@@ -316,8 +316,9 @@ const ascend = async () => {
 
 const addTestExp = async () => {
   if (playerId.value) {
-    await cultivationStore.addExp(1000, playerId.value)
-    console.log('Đã thêm 1000 EXP!')
+    const expAmount = cultivationStore.expPerDayCurrent
+    await cultivationStore.addExp(expAmount, playerId.value)
+    console.log(`Đã thêm ${expAmount.toLocaleString()} EXP!`)
   }
 }
 

@@ -53,8 +53,8 @@ const ETERNAL_TITLES = {
 
 // Exp/ngày theo cảnh giới
 export function expPerDay(realmIndex) {
-  const baseExp = 1000; // EXP cơ bản mỗi giây
-  const realmMultiplier = Math.pow(1.2, realmIndex - 1); // Tăng 20% mỗi cảnh giới
+  const baseExp = 2000; // EXP cơ bản mỗi giây - tăng từ 1000 lên 2000
+  const realmMultiplier = Math.pow(1.15, realmIndex - 1); // Tăng 15% mỗi cảnh giới (giảm từ 20%)
   return Math.floor(baseExp * realmMultiplier);
 }
 
@@ -112,16 +112,16 @@ export function expToNextFloor(currentRealm, currentFloor) {
     return 0; // Đã max tầng trong cảnh giới này
   }
   
-  // Hệ thống EXP đơn giản hơn
-  const baseExp = 1000; // EXP cơ bản cho tầng 1
-  const realmMultiplier = Math.pow(1.5, currentRealm - 1); // Tăng 50% mỗi cảnh giới
-  const floorMultiplier = Math.pow(1.2, currentFloor); // Tăng 20% mỗi tầng
+  // Hệ thống EXP đơn giản và nhanh hơn
+  const baseExp = 500; // EXP cơ bản cho tầng 1 - giảm từ 1000 xuống 500
+  const realmMultiplier = Math.pow(1.3, currentRealm - 1); // Tăng 30% mỗi cảnh giới (giảm từ 50%)
+  const floorMultiplier = Math.pow(1.1, currentFloor); // Tăng 10% mỗi tầng (giảm từ 20%)
   
   let expNeeded = Math.floor(baseExp * realmMultiplier * floorMultiplier);
   
-  // Tầng 11-15 có yêu cầu EXP cao hơn
+  // Tầng 11-15 có yêu cầu EXP cao hơn nhưng không quá khó
   if (currentFloor >= 10) {
-    expNeeded = Math.floor(expNeeded * 2); // Gấp đôi cho tầng cao
+    expNeeded = Math.floor(expNeeded * 1.5); // Tăng 50% cho tầng cao (giảm từ 100%)
   }
   
   return expNeeded;

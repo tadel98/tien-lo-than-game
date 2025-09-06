@@ -34,13 +34,14 @@ export const useCultivationAuto = () => {
       clearInterval(autoExpInterval)
     }
     
-    // Bắt đầu interval mới - cộng 1000 EXP mỗi giây
+    // Bắt đầu interval mới - cộng EXP mỗi giây dựa trên cảnh giới
     autoExpInterval = setInterval(async () => {
-      await cultivationStore.addExp(1000, playerId)
-      console.log('⚡ +1000 EXP từ tu luyện tự động!')
+      const expPerSecond = cultivationStore.expPerDayCurrent
+      await cultivationStore.addExp(expPerSecond, playerId)
+      console.log(`⚡ +${expPerSecond.toLocaleString()} EXP từ tu luyện tự động!`)
     }, 1000) // 1000ms = 1 giây
     
-    console.log('🚀 Bắt đầu tu luyện tự động - +1000 EXP/giây!')
+    console.log(`🚀 Bắt đầu tu luyện tự động - +${cultivationStore.expPerDayCurrent.toLocaleString()} EXP/giây!`)
   }
   
   const stopAutoExp = () => {
