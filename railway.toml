@@ -1,0 +1,6 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+startCommand = "node .output/server/index.mjs"
+healthcheckPath = "/api/health"

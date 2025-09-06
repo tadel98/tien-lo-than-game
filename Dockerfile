@@ -23,8 +23,13 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
+# Create a simple start script
+RUN echo '#!/bin/sh' > start.sh && \
+    echo 'node .output/server/index.mjs' >> start.sh && \
+    chmod +x start.sh
+
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["node", ".output/server/index.mjs"]
+CMD ["./start.sh"]
