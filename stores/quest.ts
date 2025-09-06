@@ -103,6 +103,34 @@ export const useQuestStore = defineStore('quest', () => {
     }
   }
 
+  // Helper function to format cooldown time
+  const formatCooldownTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    
+    if (minutes > 0) {
+      return `${minutes} phút ${remainingSeconds > 0 ? remainingSeconds + ' giây' : ''}`
+    } else {
+      return `${remainingSeconds} giây`
+    }
+  }
+
+  // Get quests with formatted cooldown
+  const questsWithFormattedCooldown = computed(() => {
+    return quests.value.map(quest => {
+      if (quest.playerStatus?.cooldownRemaining) {
+        return {
+          ...quest,
+          playerStatus: {
+            ...quest.playerStatus,
+            formattedCooldown: formatCooldownTime(quest.playerStatus.cooldownRemaining)
+          }
+        }
+      }
+      return quest
+    })
+  })
+
   const startQuest = async (playerId: string, questId: string) => {
     try {
       loading.value = true
@@ -192,6 +220,7 @@ export const useQuestStore = defineStore('quest', () => {
     questsByCategory,
     questsByDifficulty,
     questCounts,
+    questsWithFormattedCooldown,
     
     // Actions
     fetchQuests,
@@ -199,6 +228,7 @@ export const useQuestStore = defineStore('quest', () => {
     startQuest,
     completeQuest,
     getQuestById,
+    formatCooldownTime,
     reset
   }
 })

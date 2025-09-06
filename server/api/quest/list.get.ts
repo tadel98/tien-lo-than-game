@@ -3,6 +3,18 @@ import { getQuery, eventHandler, createError } from 'h3'
 
 const prisma = new PrismaClient()
 
+// Helper function to format cooldown time
+function formatCooldownTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  
+  if (minutes > 0) {
+    return `${minutes} phút ${remainingSeconds > 0 ? remainingSeconds + ' giây' : ''}`
+  } else {
+    return `${remainingSeconds} giây`
+  }
+}
+
 export default eventHandler(async (event) => {
   try {
     const query = getQuery(event)
@@ -49,7 +61,7 @@ export default eventHandler(async (event) => {
             ...quest,
             playerStatus: {
               status: 'available',
-              progress: {},
+              progress: playerQuest.progress ? JSON.parse(playerQuest.progress) : {},
               startedAt: null,
               completedAt: null,
               lastCompletedAt: playerQuest.lastCompletedAt,
@@ -58,17 +70,19 @@ export default eventHandler(async (event) => {
             }
           }
         } else if (cooldownUntil) {
+          const remainingSeconds = Math.max(0, Math.ceil((cooldownUntil.getTime() - now.getTime()) / 1000))
           return {
             ...quest,
             playerStatus: {
               status: 'cooldown',
-              progress: {},
+              progress: playerQuest.progress ? JSON.parse(playerQuest.progress) : {},
               startedAt: null,
               completedAt: null,
               lastCompletedAt: playerQuest.lastCompletedAt,
               cooldownUntil: playerQuest.cooldownUntil,
               canRepeat: false,
-              cooldownRemaining: Math.max(0, Math.ceil((cooldownUntil.getTime() - now.getTime()) / 1000))
+              cooldownRemaining: remainingSeconds,
+              formattedCooldown: formatCooldownTime(remainingSeconds)
             }
           }
         }
