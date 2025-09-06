@@ -4,31 +4,72 @@ import { ref, computed } from 'vue'
 export const useQuestStore = defineStore('quest', () => {
   // State
   const quests = ref<any[]>([])
+  const questStats = ref<any>(null)
   const loading = ref(false)
   const error = ref(null)
 
   // Getters
   const availableQuests = computed(() => {
-    return quests.value.filter(quest => quest.playerStatus.status === 'available')
+    return quests.value.filter(quest => quest.playerStatus?.status === 'available')
   })
 
   const inProgressQuests = computed(() => {
-    return quests.value.filter(quest => quest.playerStatus.status === 'in_progress')
+    return quests.value.filter(quest => quest.playerStatus?.status === 'in_progress')
   })
 
   const completedQuests = computed(() => {
-    return quests.value.filter(quest => quest.playerStatus.status === 'completed')
+    return quests.value.filter(quest => quest.playerStatus?.status === 'completed')
   })
 
-  const questsByLevel = computed(() => {
-    const grouped: { [key: number]: any[] } = {}
+  const lockedQuests = computed(() => {
+    return quests.value.filter(quest => quest.playerStatus?.status === 'locked')
+  })
+
+  const cooldownQuests = computed(() => {
+    return quests.value.filter(quest => quest.playerStatus?.status === 'cooldown')
+  })
+
+  const questsByCategory = computed(() => {
+    const grouped: { [key: string]: any[] } = {}
     quests.value.forEach(quest => {
-      if (!grouped[quest.level]) {
-        grouped[quest.level] = []
+      if (!grouped[quest.category]) {
+        grouped[quest.category] = []
       }
-      grouped[quest.level].push(quest)
+      grouped[quest.category].push(quest)
     })
     return grouped
+  })
+
+  const questsByDifficulty = computed(() => {
+    const grouped: { [key: string]: any[] } = {}
+    quests.value.forEach(quest => {
+      if (!grouped[quest.difficulty]) {
+        grouped[quest.difficulty] = []
+      }
+      grouped[quest.difficulty].push(quest)
+    })
+    return grouped
+  })
+
+  // Quest counters
+  const questCounts = computed(() => {
+    if (!questStats.value) return {
+      total: 0,
+      available: 0,
+      inProgress: 0,
+      completed: 0,
+      locked: 0,
+      cooldown: 0
+    }
+    
+    return {
+      total: questStats.value.stats.total,
+      available: questStats.value.stats.available,
+      inProgress: questStats.value.stats.inProgress,
+      completed: questStats.value.stats.completed,
+      locked: questStats.value.stats.locked,
+      cooldown: questStats.value.stats.cooldown
+    }
   })
 
   // Actions
@@ -42,6 +83,21 @@ export const useQuestStore = defineStore('quest', () => {
     } catch (err: any) {
       error.value = err.message
       console.error('Error fetching quests:', err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchQuestStats = async (playerId: string) => {
+    try {
+      loading.value = true
+      error.value = null
+
+      const response: any = await $fetch(`/api/quest/stats?playerId=${playerId}`)
+      questStats.value = response.data
+    } catch (err: any) {
+      error.value = err.message
+      console.error('Error fetching quest stats:', err)
     } finally {
       loading.value = false
     }
@@ -115,6 +171,7 @@ export const useQuestStore = defineStore('quest', () => {
 
   const reset = () => {
     quests.value = []
+    questStats.value = null
     loading.value = false
     error.value = null
   }
@@ -122,6 +179,7 @@ export const useQuestStore = defineStore('quest', () => {
   return {
     // State
     quests,
+    questStats,
     loading,
     error,
     
@@ -129,14 +187,18 @@ export const useQuestStore = defineStore('quest', () => {
     availableQuests,
     inProgressQuests,
     completedQuests,
-    questsByLevel,
+    lockedQuests,
+    cooldownQuests,
+    questsByCategory,
+    questsByDifficulty,
+    questCounts,
     
     // Actions
     fetchQuests,
+    fetchQuestStats,
     startQuest,
     completeQuest,
     getQuestById,
-    getQuestsByLevel,
     reset
   }
 })

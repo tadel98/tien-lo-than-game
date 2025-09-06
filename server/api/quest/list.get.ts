@@ -16,12 +16,12 @@ export default eventHandler(async (event) => {
     }
 
     // Lấy tất cả nhiệm vụ
-    const quests = await (prisma as any).quest.findMany({
+    const quests = await prisma.quest.findMany({
       orderBy: { difficulty: 'asc' }
     })
 
     // Lấy nhiệm vụ của người chơi
-    const playerQuests = await (prisma as any).playerQuest.findMany({
+    const playerQuests = await prisma.playerQuest.findMany({
       where: { playerId },
       include: {
         quest: true
