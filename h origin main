@@ -1,5 +1,0 @@
-[33mbce300f0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m fix: Fix breakthrough API and prepare test data
-[33m091d57cc[m[33m ([m[1;31morigin/main[m[33m)[m fix: Comprehensive database and API fixes
-[33mdd44943a[m fix: Fix auto-cultivate API error
-[33m4d5cfd09[m feat: Add comprehensive game data seeding script
-[33mac1bfc7d[m docs: Update README for PostgreSQL migration

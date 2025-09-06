@@ -13,8 +13,9 @@
     "postbuild": "node scripts/vercel-postbuild.js",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
-    "db:seed": "node scripts/seed.js",
-    "db:reset": "npx prisma db push --force-reset && npm run db:seed"
+    "db:seed": "node scripts/seed-all-game-data.js",
+    "db:seed-quests": "node scripts/seed-comprehensive-quests-fixed.js",
+    "db:cleanup": "node scripts/cleanup-database.js"
   },
   "dependencies": {
     "@nuxt/devtools": "latest",
