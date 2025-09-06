@@ -3,18 +3,6 @@ import { getQuery, eventHandler, createError } from 'h3'
 
 const prisma = new PrismaClient()
 
-// Helper function to format cooldown time
-function formatCooldownTime(seconds: number): string {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  
-  if (minutes > 0) {
-    return `${minutes} phút ${remainingSeconds > 0 ? remainingSeconds + ' giây' : ''}`
-  } else {
-    return `${remainingSeconds} giây`
-  }
-}
-
 export default eventHandler(async (event) => {
   try {
     const query = getQuery(event)
@@ -27,53 +15,69 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Lấy tất cả nhiệm vụ
+    console.log('Quest list request for player:', playerId)
+
+    // Lấy tất cả quests active
     const quests = await prisma.quest.findMany({
-      orderBy: { difficulty: 'asc' }
+      where: { isActive: true },
+      orderBy: [
+        { category: 'asc' },
+        { difficulty: 'asc' },
+        { createdAt: 'asc' }
+      ]
     })
 
-    // Lấy nhiệm vụ của người chơi
+    // Lấy player quests
     const playerQuests = await prisma.playerQuest.findMany({
-      where: { playerId },
-      include: {
-        quest: true
-      }
+      where: { playerId }
     })
 
-    // Tạo map để dễ tra cứu
+    // Tạo map để tra cứu nhanh
     const playerQuestMap = new Map()
-    playerQuests.forEach((pq: any) => {
+    playerQuests.forEach(pq => {
       playerQuestMap.set(pq.questId, pq)
     })
 
-    // Kết hợp thông tin nhiệm vụ với trạng thái của người chơi
-    const questsWithStatus = quests.map((quest: any) => {
+    // Lấy thông tin player để kiểm tra level
+    const player = await prisma.player.findUnique({
+      where: { id: playerId }
+    })
+
+    // Kết hợp quest với player status
+    const questsWithStatus = quests.map(quest => {
       const playerQuest = playerQuestMap.get(quest.id)
+      const now = new Date()
       
-      // Xử lý nhiệm vụ lặp lại
-      if (quest.isRepeatable && playerQuest) {
-        const now = new Date()
-        const cooldownUntil = playerQuest.cooldownUntil ? new Date(playerQuest.cooldownUntil) : null
-        
-        // Kiểm tra xem nhiệm vụ có thể nhận lại không
-        if (cooldownUntil && now >= cooldownUntil) {
-          return {
-            ...quest,
-            playerStatus: {
+      let playerStatus = {
+        status: 'available',
+        progress: {},
+        startedAt: null,
+        completedAt: null,
+        lastCompletedAt: null,
+        cooldownUntil: null,
+        canRepeat: quest.isRepeatable
+      }
+
+      if (playerQuest) {
+        // Xử lý quest lặp lại
+        if (quest.isRepeatable && playerQuest.status === 'cooldown') {
+          const cooldownUntil = playerQuest.cooldownUntil ? new Date(playerQuest.cooldownUntil) : null
+          
+          if (cooldownUntil && now >= cooldownUntil) {
+            // Cooldown đã hết, có thể nhận lại
+            playerStatus = {
               status: 'available',
-              progress: playerQuest.progress ? JSON.parse(playerQuest.progress) : {},
+              progress: {},
               startedAt: null,
               completedAt: null,
               lastCompletedAt: playerQuest.lastCompletedAt,
               cooldownUntil: null,
               canRepeat: true
             }
-          }
-        } else if (cooldownUntil) {
-          const remainingSeconds = Math.max(0, Math.ceil((cooldownUntil.getTime() - now.getTime()) / 1000))
-          return {
-            ...quest,
-            playerStatus: {
+          } else {
+            // Vẫn đang cooldown
+            const remainingSeconds = cooldownUntil ? Math.max(0, Math.ceil((cooldownUntil.getTime() - now.getTime()) / 1000)) : 0
+            playerStatus = {
               status: 'cooldown',
               progress: playerQuest.progress ? JSON.parse(playerQuest.progress) : {},
               startedAt: null,
@@ -81,40 +85,60 @@ export default eventHandler(async (event) => {
               lastCompletedAt: playerQuest.lastCompletedAt,
               cooldownUntil: playerQuest.cooldownUntil,
               canRepeat: false,
-              cooldownRemaining: remainingSeconds,
-              formattedCooldown: formatCooldownTime(remainingSeconds)
+              cooldownRemaining: remainingSeconds
             }
           }
+        } else {
+          // Quest thường hoặc đang in_progress/completed
+          playerStatus = {
+            status: playerQuest.status,
+            progress: playerQuest.progress ? JSON.parse(playerQuest.progress) : {},
+            startedAt: playerQuest.startedAt,
+            completedAt: playerQuest.completedAt,
+            lastCompletedAt: playerQuest.lastCompletedAt,
+            cooldownUntil: playerQuest.cooldownUntil,
+            canRepeat: quest.isRepeatable
+          }
+        }
+      } else {
+        // Chưa có player quest, kiểm tra level requirement
+        try {
+          const requirements = JSON.parse(quest.requirements || '{}')
+          const requiredLevel = requirements.level || 1
+          
+          if (player && player.level < requiredLevel) {
+            playerStatus.status = 'locked'
+          }
+        } catch (e) {
+          console.error('Error parsing quest requirements:', e)
         }
       }
-      
+
       return {
-        ...quest,
-        playerStatus: playerQuest ? {
-          status: playerQuest.status,
-          progress: playerQuest.progress ? JSON.parse(playerQuest.progress) : {},
-          startedAt: playerQuest.startedAt,
-          completedAt: playerQuest.completedAt,
-          lastCompletedAt: playerQuest.lastCompletedAt,
-          cooldownUntil: playerQuest.cooldownUntil,
-          canRepeat: quest.isRepeatable
-        } : {
-          status: 'available',
-          progress: {},
-          startedAt: null,
-          completedAt: null,
-          lastCompletedAt: null,
-          cooldownUntil: null,
-          canRepeat: quest.isRepeatable
-        }
+        id: quest.id,
+        name: quest.name,
+        displayName: quest.displayName,
+        description: quest.description,
+        category: quest.category,
+        difficulty: quest.difficulty,
+        rewards: quest.rewards,
+        requirements: quest.requirements,
+        isActive: quest.isActive,
+        isRepeatable: quest.isRepeatable,
+        repeatInterval: quest.repeatInterval,
+        createdAt: quest.createdAt.toISOString(),
+        updatedAt: quest.updatedAt.toISOString(),
+        playerStatus
       }
     })
+
+    console.log(`Returning ${questsWithStatus.length} quests for player ${playerId}`)
 
     return {
       success: true,
       data: {
         quests: questsWithStatus,
-        total: quests.length
+        total: questsWithStatus.length
       }
     }
   } catch (error: any) {

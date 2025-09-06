@@ -8,6 +8,8 @@ export default eventHandler(async (event) => {
     const body = await readBody(event)
     const { playerId, questId } = body
 
+    console.log('Quest start request:', { playerId, questId })
+
     if (!playerId || !questId) {
       throw createError({
         statusCode: 400,
@@ -15,7 +17,7 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Kiểm tra nhiệm vụ có tồn tại không
+    // Lấy thông tin quest
     const quest = await prisma.quest.findUnique({
       where: { id: questId }
     })
@@ -27,7 +29,14 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Kiểm tra người chơi có đủ level không
+    if (!quest.isActive) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Nhiệm vụ không khả dụng'
+      })
+    }
+
+    // Lấy thông tin player
     const player = await prisma.player.findUnique({
       where: { id: playerId }
     })
@@ -39,15 +48,13 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Parse requirements để kiểm tra level
+    // Kiểm tra level requirement
     let requiredLevel = 1
     try {
       const requirements = JSON.parse(quest.requirements || '{}')
       requiredLevel = requirements.level || 1
     } catch (e) {
       console.error('Error parsing quest requirements:', e)
-      // Nếu không parse được requirements, coi như level 1
-      requiredLevel = 1
     }
 
     if (player.level < requiredLevel) {
@@ -57,7 +64,7 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Kiểm tra nhiệm vụ đã được nhận chưa
+    // Kiểm tra quest đã tồn tại chưa
     const existingPlayerQuest = await prisma.playerQuest.findFirst({
       where: {
         playerId,
@@ -66,28 +73,38 @@ export default eventHandler(async (event) => {
     })
 
     if (existingPlayerQuest) {
+      // Nếu quest đang in_progress
       if (existingPlayerQuest.status === 'in_progress') {
         throw createError({
           statusCode: 400,
           statusMessage: 'Nhiệm vụ đang được thực hiện'
         })
       }
+
+      // Nếu quest đã completed và không repeatable
       if (existingPlayerQuest.status === 'completed' && !quest.isRepeatable) {
         throw createError({
           statusCode: 400,
-          statusMessage: 'Nhiệm vụ đã hoàn thành'
+          statusMessage: 'Nhiệm vụ đã hoàn thành và không thể lặp lại'
         })
       }
+
+      // Nếu quest đang cooldown
       if (existingPlayerQuest.status === 'cooldown') {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'Nhiệm vụ đang trong thời gian cooldown'
-        })
+        const now = new Date()
+        const cooldownUntil = existingPlayerQuest.cooldownUntil ? new Date(existingPlayerQuest.cooldownUntil) : null
+        
+        if (cooldownUntil && now < cooldownUntil) {
+          const remainingSeconds = Math.ceil((cooldownUntil.getTime() - now.getTime()) / 1000)
+          throw createError({
+            statusCode: 400,
+            statusMessage: `Nhiệm vụ đang trong thời gian cooldown. Còn lại ${remainingSeconds} giây`
+          })
+        }
       }
-      // Quest có thể bắt đầu nếu status là 'available' hoặc 'completed' (cho repeatable quests)
     }
 
-    // Bắt đầu nhiệm vụ
+    // Tạo hoặc cập nhật player quest
     const playerQuest = await prisma.playerQuest.upsert({
       where: {
         playerId_questId: {
@@ -98,7 +115,8 @@ export default eventHandler(async (event) => {
       update: {
         status: 'in_progress',
         startedAt: new Date(),
-        progress: JSON.stringify({})
+        progress: JSON.stringify({}),
+        completedAt: null
       },
       create: {
         playerId,
@@ -109,14 +127,23 @@ export default eventHandler(async (event) => {
       }
     })
 
+    console.log('Quest started successfully:', playerQuest.id)
+
     return {
       success: true,
+      message: 'Đã nhận nhiệm vụ thành công',
       data: {
         quest: {
-          ...quest,
-          // Convert any BigInt fields to string
-          createdAt: quest.createdAt.toISOString(),
-          updatedAt: quest.updatedAt.toISOString(),
+          id: quest.id,
+          name: quest.name,
+          displayName: quest.displayName,
+          description: quest.description,
+          category: quest.category,
+          difficulty: quest.difficulty,
+          rewards: quest.rewards,
+          requirements: quest.requirements,
+          isRepeatable: quest.isRepeatable,
+          repeatInterval: quest.repeatInterval,
           playerStatus: {
             status: playerQuest.status,
             progress: JSON.parse(playerQuest.progress),
@@ -129,12 +156,11 @@ export default eventHandler(async (event) => {
   } catch (error: any) {
     console.error('Start quest error:', error)
     
-    // Nếu là lỗi business logic (400), giữ nguyên status code
+    // Nếu là lỗi business logic, giữ nguyên status code
     if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
       throw error
     }
     
-    // Chỉ throw 500 cho lỗi server thực sự
     throw createError({
       statusCode: 500,
       statusMessage: error.message || 'Lỗi bắt đầu nhiệm vụ'

@@ -8,6 +8,8 @@ export default eventHandler(async (event) => {
     const body = await readBody(event)
     const { playerId, questId } = body
 
+    console.log('Quest complete request:', { playerId, questId })
+
     if (!playerId || !questId) {
       throw createError({
         statusCode: 400,
@@ -15,8 +17,8 @@ export default eventHandler(async (event) => {
       })
     }
 
-    // Lấy thông tin nhiệm vụ và người chơi
-    const playerQuest = await (prisma as any).playerQuest.findFirst({
+    // Lấy thông tin player quest
+    const playerQuest = await prisma.playerQuest.findFirst({
       where: {
         playerId,
         questId
@@ -41,142 +43,134 @@ export default eventHandler(async (event) => {
     }
 
     const quest = playerQuest.quest
-
-    // Kiểm tra điều kiện hoàn thành (đơn giản - chỉ cần bắt đầu nhiệm vụ)
-    // Trong thực tế có thể kiểm tra các điều kiện phức tạp hơn
-
-    // Cập nhật trạng thái nhiệm vụ
     const now = new Date()
+
+    // Cập nhật trạng thái quest
     let updateData: any = {
       status: 'completed',
       completedAt: now,
       lastCompletedAt: now
     }
 
-    // Nếu là nhiệm vụ lặp lại, tính toán cooldown
+    // Xử lý quest lặp lại
     if (quest.isRepeatable && quest.repeatInterval) {
       const cooldownUntil = new Date(now.getTime() + quest.repeatInterval * 60 * 1000)
       updateData.cooldownUntil = cooldownUntil
       updateData.status = 'cooldown'
     }
 
-    await (prisma as any).playerQuest.update({
+    await prisma.playerQuest.update({
       where: { id: playerQuest.id },
       data: updateData
     })
 
-    // Phân tích phần thưởng
-    const rewards = JSON.parse(quest.rewards)
-    const player = await (prisma as any).player.findUnique({
-      where: { id: playerId },
-      include: {
-        resources: {
-          include: {
-            resource: true
-          }
-        }
-      }
-    })
+    // Phân tích và áp dụng phần thưởng
+    let rewards = {}
+    let levelUp = false
+    let newLevel = 0
+
+    try {
+      rewards = JSON.parse(quest.rewards || '{}')
+    } catch (e) {
+      console.error('Error parsing quest rewards:', e)
+      rewards = {}
+    }
 
     // Cập nhật kinh nghiệm
     if (rewards.experience) {
-      const newExp = Number(player.experience) + Number(rewards.experience)
-      await (prisma as any).player.update({
-        where: { id: playerId },
-        data: { experience: newExp }
-      })
-    }
-
-    // Cập nhật tài nguyên
-    if (rewards.resources) {
-      for (const [resourceName, amount] of Object.entries(rewards.resources)) {
-        const resource = await (prisma as any).resource.findFirst({
-          where: { name: resourceName }
-        })
-
-        if (resource) {
-          const playerResource = await (prisma as any).playerResource.findFirst({
-            where: {
-              playerId,
-              resourceId: resource.id
-            }
-          })
-
-          if (playerResource) {
-            await (prisma as any).playerResource.update({
-              where: { id: playerResource.id },
-              data: {
-                amount: Number(playerResource.amount) + Number(amount)
-              }
-            })
-          } else {
-            await (prisma as any).playerResource.create({
-              data: {
-                playerId,
-                resourceId: resource.id,
-                amount: Number(amount)
-              }
-            })
-          }
-        }
-      }
-    }
-
-    // Cập nhật level nếu cần
-    let levelUp = false
-    let newLevel = player.level
-    if (rewards.experience) {
-      const newExp = Number(player.experience) + Number(rewards.experience)
-      // Tính level mới dựa trên công thức: level^2 * 1440
-      for (let level = player.level + 1; level <= 1000; level++) {
+      const currentExp = Number(playerQuest.player?.experience || 0)
+      const newExp = currentExp + Number(rewards.experience)
+      
+      // Tính level mới
+      let calculatedLevel = playerQuest.player?.level || 1
+      for (let level = calculatedLevel + 1; level <= 1000; level++) {
         const requiredExp = Math.pow(level, 2) * 1440
         if (newExp >= requiredExp) {
-          newLevel = level
+          calculatedLevel = level
           levelUp = true
         } else {
           break
         }
       }
 
-      if (levelUp) {
-        await (prisma as any).player.update({
-          where: { id: playerId },
-          data: { 
-            level: newLevel,
-            experience: newExp
-          }
+      await prisma.player.update({
+        where: { id: playerId },
+        data: { 
+          level: calculatedLevel,
+          experience: newExp
+        }
+      })
+
+      newLevel = calculatedLevel
+    }
+
+    // Cập nhật tài nguyên
+    if (rewards.resources) {
+      for (const [resourceName, amount] of Object.entries(rewards.resources)) {
+        const resource = await prisma.resource.findFirst({
+          where: { name: resourceName }
         })
+
+        if (resource) {
+          await prisma.playerResource.upsert({
+            where: {
+              playerId_resourceId: {
+                playerId,
+                resourceId: resource.id
+              }
+            },
+            update: {
+              amount: {
+                increment: Number(amount)
+              }
+            },
+            create: {
+              playerId,
+              resourceId: resource.id,
+              amount: Number(amount)
+            }
+          })
+        }
       }
     }
 
-    // Cập nhật sức mạnh chiến đấu sau khi hoàn thành nhiệm vụ
-    try {
-      await fetch('/api/character/sync-combat-power', {
-        method: 'POST'
-      })
-    } catch (e) {
-      console.error('Error syncing combat power:', e)
-    }
+    console.log('Quest completed successfully:', quest.displayName)
 
     return {
       success: true,
+      message: 'Hoàn thành nhiệm vụ thành công',
       data: {
         quest: {
-          ...quest,
+          id: quest.id,
+          name: quest.name,
+          displayName: quest.displayName,
+          description: quest.description,
+          category: quest.category,
+          difficulty: quest.difficulty,
+          rewards: quest.rewards,
+          isRepeatable: quest.isRepeatable,
+          repeatInterval: quest.repeatInterval,
           playerStatus: {
-            status: 'completed',
+            status: updateData.status,
             progress: JSON.parse(playerQuest.progress),
-            startedAt: playerQuest.startedAt,
-            completedAt: new Date()
+            startedAt: playerQuest.startedAt?.toISOString(),
+            completedAt: updateData.completedAt?.toISOString(),
+            cooldownUntil: updateData.cooldownUntil?.toISOString()
           }
         },
         rewards,
         levelUp,
-        newLevel: levelUp ? newLevel : player.level
+        newLevel: levelUp ? newLevel : playerQuest.player?.level || 1
       }
     }
   } catch (error: any) {
     console.error('Complete quest error:', error)
+    
+    // Nếu là lỗi business logic, giữ nguyên status code
+    if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+      throw error
+    }
+    
     throw createError({
       statusCode: 500,
       statusMessage: error.message || 'Lỗi hoàn thành nhiệm vụ'

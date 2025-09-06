@@ -348,7 +348,7 @@ const startQuest = async (questId) => {
     
     if (!player.value?.id) {
       console.error('Player ID not found!')
-      alert('Lỗi: Không tìm thấy thông tin người chơi. Vui lòng đăng nhập lại.')
+      alert('❌ Lỗi: Không tìm thấy thông tin người chơi. Vui lòng đăng nhập lại.')
       return
     }
     
@@ -368,6 +368,8 @@ const startQuest = async (questId) => {
     
     if (err.data?.statusMessage) {
       errorMessage = err.data.statusMessage
+    } else if (err.data?.message) {
+      errorMessage = err.data.message
     } else if (err.message) {
       errorMessage = err.message
     }
@@ -378,18 +380,43 @@ const startQuest = async (questId) => {
 
 const completeQuest = async (questId) => {
   try {
+    if (!player.value?.id) {
+      console.error('Player ID not found!')
+      alert('❌ Lỗi: Không tìm thấy thông tin người chơi.')
+      return
+    }
+    
     const result = await questStore.completeQuest(player.value.id, questId)
     console.log('Nhiệm vụ đã hoàn thành:', result.quest.displayName)
     console.log('Phần thưởng:', result.rewards)
     
+    let message = `✅ Đã hoàn thành nhiệm vụ: ${result.quest.displayName}`
+    
     if (result.levelUp) {
+      message += `\n🎉 Level Up! Level ${result.newLevel}`
       console.log(`🎉 Level Up! Level ${result.newLevel}`)
     }
     
-    // Refresh player data
+    // Refresh quest list and player data
+    await questStore.fetchQuests(player.value.id)
     await playerStore.fetchResources(player.value.id)
+    
+    alert(message)
   } catch (err) {
     console.error('Lỗi hoàn thành nhiệm vụ:', err)
+    
+    // Hiển thị thông báo lỗi cụ thể
+    let errorMessage = 'Có lỗi xảy ra khi hoàn thành nhiệm vụ'
+    
+    if (err.data?.statusMessage) {
+      errorMessage = err.data.statusMessage
+    } else if (err.data?.message) {
+      errorMessage = err.data.message
+    } else if (err.message) {
+      errorMessage = err.message
+    }
+    
+    alert(`❌ ${errorMessage}`)
   }
 }
 

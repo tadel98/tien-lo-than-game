@@ -152,7 +152,7 @@ export const useQuestStore = defineStore('quest', () => {
 
       return response.data
     } catch (err: any) {
-      error.value = err.message
+      error.value = err.data?.statusMessage || err.data?.message || err.message
       console.error('Error starting quest:', err)
       throw err
     } finally {
@@ -181,7 +181,7 @@ export const useQuestStore = defineStore('quest', () => {
 
       return response.data
     } catch (err: any) {
-      error.value = err.message
+      error.value = err.data?.statusMessage || err.data?.message || err.message
       console.error('Error completing quest:', err)
       throw err
     } finally {
