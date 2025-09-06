@@ -102,10 +102,17 @@
             <p v-if="cultivationStore.currentFloor >= 15" class="text-xs text-blue-400 mt-1">💡 Thất bại ở tầng 15 sẽ tự động lên cảnh giới tiếp theo!</p>
           </div>
           
-          <div class="bg-gray-800/50 p-4 rounded-lg">
-            <h4 class="text-sm font-semibold text-white mb-1">Cảnh giới hiện tại</h4>
-            <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/9</p>
-          </div>
+            <div class="bg-gray-800/50 p-4 rounded-lg">
+              <h4 class="text-sm font-semibold text-white mb-1">Phẩm chất hiện tại</h4>
+              <p class="text-lg font-semibold" :style="{ color: cultivationStore.currentQualityColor }">
+                {{ cultivationStore.currentQuality }}
+              </p>
+            </div>
+            
+            <div class="bg-gray-800/50 p-4 rounded-lg">
+              <h4 class="text-sm font-semibold text-white mb-1">Cảnh giới hiện tại</h4>
+              <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/9</p>
+            </div>
         </div>
 
         <!-- Action Buttons -->

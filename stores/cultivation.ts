@@ -38,7 +38,12 @@ export const useCultivationStore = defineStore('cultivation', () => {
   const currentExp = ref(0)
   const totalExpGained = ref(0)
   const currentQuality = ref('Hạ Phẩm') // Phẩm chất hiện tại
-  const eternalTitles = ref([]) // Danh sách danh hiệu vĩnh cửu
+  const eternalTitles = ref<Array<{
+    name: string
+    description: string
+    floor: number
+    realm: number
+  }>>([]) // Danh sách danh hiệu vĩnh cửu
   const hasAscended = ref(false) // Đã phi thăng chưa
 
 
@@ -263,7 +268,7 @@ export const useCultivationStore = defineStore('cultivation', () => {
     
     // Thêm danh hiệu vĩnh cửu nếu có
     const title = getEternalTitle(currentFloor.value)
-    if (title && !eternalTitles.value.find(t => t.floor === currentFloor.value)) {
+    if (title && !eternalTitles.value.find((t: any) => t.floor === currentFloor.value)) {
       eternalTitles.value.push({
         ...title,
         floor: currentFloor.value,
