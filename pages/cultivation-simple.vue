@@ -44,8 +44,12 @@
             
             <div class="bg-gray-800/50 p-4 rounded-lg">
               <h4 class="text-sm font-semibold text-white mb-1">Trạng thái</h4>
-              <p v-if="canBreakthroughFloor" class="text-lg text-green-400 font-semibold">Sẵn sàng lên tầng!</p>
+              <p v-if="canBreakthroughFloor" class="text-lg text-green-400 font-semibold">
+                <span v-if="currentFloor >= 15">Có thể thử đột phá cảnh giới!</span>
+                <span v-else>Sẵn sàng lên tầng!</span>
+              </p>
               <p v-else class="text-lg text-yellow-400">Cần thêm {{ (expToNextFloor - currentExp).toLocaleString() }} EXP</p>
+              <p v-if="currentFloor >= 15" class="text-xs text-blue-400 mt-1">💡 Thất bại ở tầng 15 sẽ tự động lên cảnh giới tiếp theo!</p>
             </div>
             
             <div class="bg-gray-800/50 p-4 rounded-lg">
@@ -61,7 +65,8 @@
               @click="attemptBreakthroughFloor"
               class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold"
             >
-              🚀 Đột Phá Tầng
+              <span v-if="currentFloor >= 15">🌟 Thử Đột Phá Cảnh Giới</span>
+              <span v-else>🚀 Đột Phá Tầng</span>
             </button>
             
             <button

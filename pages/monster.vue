@@ -79,8 +79,14 @@
             </div>
             <div class="flex justify-between text-sm text-game-text-secondary mt-2">
               <span>{{ Math.round((cultivationStore.currentExp / cultivationStore.expToNextFloor) * 100) }}%</span>
-              <span v-if="cultivationStore.canBreakthroughFloor" class="text-green-400 font-semibold">Sẵn sàng lên tầng!</span>
+              <span v-if="cultivationStore.canBreakthroughFloor" class="text-green-400 font-semibold">
+                <span v-if="cultivationStore.currentFloor >= 15">Có thể thử đột phá cảnh giới!</span>
+                <span v-else>Sẵn sàng lên tầng!</span>
+              </span>
               <span v-else class="text-yellow-400">Cần thêm {{ (cultivationStore.expToNextFloor - cultivationStore.currentExp).toLocaleString() }} EXP</span>
+            </div>
+            <div v-if="cultivationStore.currentFloor >= 15" class="text-xs text-blue-400 mt-1 text-center">
+              💡 Thất bại ở tầng 15 sẽ tự động lên cảnh giới tiếp theo!
             </div>
           </div>
         </div>

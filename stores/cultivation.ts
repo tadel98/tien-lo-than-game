@@ -55,6 +55,10 @@ export const useCultivationStore = defineStore('cultivation', () => {
   })
 
   const canBreakthroughFloor = computed(() => {
+    // Nếu ở tầng 15, luôn có thể thử đột phá (thất bại sẽ lên cảnh giới tiếp theo)
+    if (currentFloor.value >= FLOORS) {
+      return true
+    }
     return currentExp.value >= expToNextFloorValue.value
   })
 
@@ -209,6 +213,11 @@ export const useCultivationStore = defineStore('cultivation', () => {
     
     if (isSuccess) {
       return breakthroughFloor()
+    } else {
+      // Nếu thất bại ở tầng 15, tự động lên cảnh giới tiếp theo
+      if (currentFloor.value >= FLOORS) {
+        return breakthroughRealm()
+      }
     }
     
     return false
