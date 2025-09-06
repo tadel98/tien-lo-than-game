@@ -20,16 +20,16 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'vercel'
   },
-  ssr: true,
+  ssr: false,
   runtimeConfig: {
     // Private keys (only available on server-side)
-    jwtSecret: process.env.JWT_SECRET || 'default-secret',
-    databaseUrl: process.env.DATABASE_URL,
+    jwtSecret: 'default-secret',
+    databaseUrl: '',
     
     // Public keys (exposed to client-side)
     public: {
-      baseUrl: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000',
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api'
+      baseUrl: 'http://localhost:3000',
+      apiBaseUrl: 'http://localhost:3000/api'
     }
   }
 })
