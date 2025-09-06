@@ -109,14 +109,42 @@
               </p>
             </div>
             
-            <div class="bg-gray-800/50 p-4 rounded-lg">
-              <h4 class="text-sm font-semibold text-white mb-1">Cảnh giới hiện tại</h4>
-              <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/9</p>
-            </div>
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold text-white mb-1">Cảnh giới hiện tại</h4>
+            <p class="text-lg text-purple-400">{{ cultivationStore.currentRealm }}/9</p>
+          </div>
+          
+          <div class="bg-gray-800/50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold text-white mb-1">Trạng thái tu luyện</h4>
+            <p v-if="isAutoExpRunning()" class="text-lg text-green-400 font-semibold">
+              ⚡ Đang tu luyện tự động (+1000 EXP/giây)
+            </p>
+            <p v-else class="text-lg text-gray-400">
+              💤 Chưa tu luyện
+            </p>
+          </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-4 justify-center">
+          <!-- Auto Cultivation Controls -->
+          <div class="flex gap-2">
+            <button
+              v-if="!isAutoExpRunning()"
+              @click="startAutoCultivation"
+              class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold text-sm"
+            >
+              🚀 Bắt Đầu Tu Luyện Tự Động (+1000 EXP/giây)
+            </button>
+            <button
+              v-else
+              @click="stopAutoCultivation"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold text-sm"
+            >
+              ⏹️ Dừng Tu Luyện Tự Động
+            </button>
+          </div>
+          
           <!-- Test button để thêm EXP -->
           <button
             @click="addTestExp"
@@ -213,7 +241,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // Stores
 const authStore = useAuthStore()
@@ -221,7 +249,7 @@ const playerStore = usePlayerStore()
 const cultivationStore = useCultivationStore()
 
 // Composables
-const { checkAndAddDailyExp } = useCultivationAuto()
+const { checkAndAddDailyExp, startAutoExp, stopAutoExp, isAutoExpRunning } = useCultivationAuto()
 
 // State
 const playerId = ref('')
@@ -293,6 +321,16 @@ const addTestExp = async () => {
   }
 }
 
+const startAutoCultivation = () => {
+  if (playerId.value) {
+    startAutoExp(playerId.value)
+  }
+}
+
+const stopAutoCultivation = () => {
+  stopAutoExp()
+}
+
 const getRealmName = (realmIndex) => {
   const realmNames = ['Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Luyện Hư', 'Hợp Thể', 'Đại Thừa', 'Độ Kiếp']
   return realmNames[realmIndex - 1] || 'Unknown'
@@ -314,5 +352,10 @@ onMounted(async () => {
       console.error('Không tìm thấy playerId:', authStore.user)
     }
   }
+})
+
+// Cleanup
+onUnmounted(() => {
+  stopAutoExp()
 })
 </script>
