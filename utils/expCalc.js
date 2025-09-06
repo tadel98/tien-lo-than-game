@@ -10,11 +10,11 @@ const REALM_GROWTH = 0.05;         // +5% exp mỗi cảnh giới
 
 // Tỷ lệ fail tầng 11-15
 const FAIL_RATES = {
-  11: 0.10,  // 10% fail
-  12: 0.09,  // 9% fail
-  13: 0.05,  // 5% fail
-  14: 0.03,  // 3% fail
-  15: 0.01   // 1% fail
+  11: 0.90,  // 90% fail
+  12: 0.91,  // 91% fail
+  13: 0.95,  // 95% fail
+  14: 0.97,  // 97% fail
+  15: 0.99   // 99% fail
 };
 
 // Tên các cảnh giới
