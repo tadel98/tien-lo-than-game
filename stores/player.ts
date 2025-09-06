@@ -73,25 +73,31 @@ export const usePlayerStore = defineStore('player', () => {
     }
   }
 
-  const updateResource = async (playerId: string, resourceId: string, amount: number, locked: number = 0) => {
+  const updateResource = async (playerId: string, resourceName: string, amount: number, locked: number = 0) => {
     try {
       loading.value = true
       error.value = null
 
       const response: any = await $fetch('/api/player/resources/update', {
         method: 'POST',
-        body: {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           playerId,
-          resourceId,
+          resourceName,
           amount,
           locked
-        }
+        })
       })
 
       // Update local state
-      const index = resources.value.findIndex(r => r.resourceId === resourceId)
+      const index = resources.value.findIndex(r => r.resource?.name === resourceName)
       if (index !== -1) {
         resources.value[index] = response.data
+      } else {
+        // Add new resource to local state if not found
+        resources.value.push(response.data)
       }
 
       return response.data
@@ -134,26 +140,21 @@ export const usePlayerStore = defineStore('player', () => {
 
   const addResource = async (playerId: string, resourceName: string, amount: number) => {
     const resource = getResourceByName(resourceName)
-    if (!resource) {
-      throw new Error(`Resource ${resourceName} not found`)
-    }
-
-    const newAmount = Number(resource.amount) + amount
-    return await updateResource(playerId, resource.resourceId, newAmount, resource.locked)
+    const currentAmount = resource ? Number(resource.amount || 0) : 0
+    const newAmount = currentAmount + amount
+    return await updateResource(playerId, resourceName, newAmount, resource?.locked || 0)
   }
 
   const spendResource = async (playerId: string, resourceName: string, amount: number) => {
     const resource = getResourceByName(resourceName)
-    if (!resource) {
-      throw new Error(`Resource ${resourceName} not found`)
-    }
-
-    if (Number(resource.amount) < amount) {
+    const currentAmount = resource ? Number(resource.amount || 0) : 0
+    
+    if (currentAmount < amount) {
       throw new Error(`Không đủ ${resourceName}`)
     }
 
-    const newAmount = Number(resource.amount) - amount
-    return await updateResource(playerId, resource.resourceId, newAmount, resource.locked)
+    const newAmount = currentAmount - amount
+    return await updateResource(playerId, resourceName, newAmount, resource?.locked || 0)
   }
 
   // Initialize player data
