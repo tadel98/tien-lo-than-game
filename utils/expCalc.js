@@ -112,16 +112,16 @@ export function expToNextFloor(currentRealm, currentFloor) {
     return 0; // Đã max tầng trong cảnh giới này
   }
   
-  // Hệ thống EXP đơn giản và nhanh hơn
-  const baseExp = 500; // EXP cơ bản cho tầng 1 - giảm từ 1000 xuống 500
-  const realmMultiplier = Math.pow(1.3, currentRealm - 1); // Tăng 30% mỗi cảnh giới (giảm từ 50%)
-  const floorMultiplier = Math.pow(1.1, currentFloor); // Tăng 10% mỗi tầng (giảm từ 20%)
+  // Hệ thống EXP chậm hơn - 5 phút cho mỗi tầng
+  const baseExp = 600000; // EXP cơ bản cho tầng 1 (600k = 5 phút với 2000 EXP/s)
+  const realmMultiplier = Math.pow(1.2, currentRealm - 1); // Tăng 20% mỗi cảnh giới
+  const floorMultiplier = Math.pow(1.15, currentFloor); // Tăng 15% mỗi tầng
   
   let expNeeded = Math.floor(baseExp * realmMultiplier * floorMultiplier);
   
-  // Tầng 11-15 có yêu cầu EXP cao hơn nhưng không quá khó
+  // Tầng 11-15 có yêu cầu EXP cao hơn
   if (currentFloor >= 10) {
-    expNeeded = Math.floor(expNeeded * 1.5); // Tăng 50% cho tầng cao (giảm từ 100%)
+    expNeeded = Math.floor(expNeeded * 2); // Gấp đôi cho tầng cao
   }
   
   return expNeeded;
@@ -141,13 +141,14 @@ export function expToNextRealm(currentRealm) {
     return 0; // Đã max cảnh giới
   }
   
-  // EXP cần để lên cảnh giới tiếp theo = tổng EXP của tất cả tầng trong cảnh giới hiện tại
+  // EXP cần để lên cảnh giới tiếp theo = 50% tổng EXP của tất cả tầng trong cảnh giới hiện tại
   let totalExp = 0;
   for (let floor = 1; floor <= FLOORS; floor++) {
     totalExp += expToNextFloor(currentRealm, floor);
   }
   
-  return totalExp;
+  // Giảm 50% thời gian cần cho mỗi đại cảnh giới
+  return Math.floor(totalExp * 0.5);
 }
 
 // Tính exp cần từ đầu đến cảnh giới và tầng hiện tại
