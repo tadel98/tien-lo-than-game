@@ -31,10 +31,8 @@ export default defineNuxtConfig({
     }
   },
   experimental: {
-    payloadExtraction: false,
-    clientNodeCompat: true
+    payloadExtraction: false
   },
-  middleware: [],
   plugins: [
     '~/plugins/middleware-fix.client.ts'
   ],
