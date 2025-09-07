@@ -1,9 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '../../../lib/prisma'
 import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
-
-const prisma = new PrismaClient()
 
 export default eventHandler(async (event) => {
   try {
