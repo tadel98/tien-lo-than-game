@@ -43,9 +43,6 @@ export default defineNuxtConfig({
   experimental: {
     payloadExtraction: false
   },
-  router: {
-    middleware: []
-  },
   vite: {
     optimizeDeps: {
       include: ['@prisma/client']
@@ -53,9 +50,6 @@ export default defineNuxtConfig({
     define: {
       global: 'globalThis'
     }
-  },
-  experimental: {
-    payloadExtraction: false
   },
   typescript: {
     typeCheck: false
@@ -76,11 +70,11 @@ export default defineNuxtConfig({
     }
   },
   server: {
-    port: process.env.PORT || 3000,
+    port: Number(process.env.PORT) || 3000,
     host: '0.0.0.0'
   },
   devServer: {
-    port: process.env.PORT || 3000,
+    port: Number(process.env.PORT) || 3000,
     host: '0.0.0.0'
   }
 })
