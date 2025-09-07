@@ -1,6 +1,6 @@
 {
   "framework": "nuxtjs",
-  "buildCommand": "node scripts/vercel-build.js",
+  "buildCommand": "npm run build",
   "installCommand": "npm install",
   "env": {
     "PRISMA_GENERATE_DATAPROXY": "false"
@@ -20,5 +20,11 @@
     "env": {
       "NODE_ENV": "production"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
 }

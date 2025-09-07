@@ -19,7 +19,7 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    preset: 'node-server',
+    preset: 'vercel',
     experimental: {
       wasm: true
     },

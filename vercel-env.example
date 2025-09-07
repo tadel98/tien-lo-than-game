@@ -1,0 +1,19 @@
+# Vercel Environment Variables
+# Copy these variables to Vercel Dashboard → Settings → Environment Variables
+
+# Database Configuration
+DATABASE_URL="postgresql://neondb_owner:npg_u5SXZm3yzvOl@ep-long-dust-a1cl7wyx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# JWT Secret Key (Change this in production!)
+JWT_SECRET="tien-lo-than-game-super-secret-jwt-key-2024-vercel-production"
+
+# Environment
+NODE_ENV="production"
+
+# Public URLs (Update with your actual Vercel URL)
+NUXT_PUBLIC_BASE_URL="https://tien-lo-than-game.vercel.app"
+NUXT_PUBLIC_API_BASE_URL="https://tien-lo-than-game.vercel.app/api"
+
+# Vercel Specific
+VERCEL_ENV="production"
+VERCEL_REGION="sin1"
