@@ -47,18 +47,6 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Game tu luyện với giao diện đẹp mắt' }
       ],
-      script: [
-        {
-          innerHTML: `
-            window.addEventListener('DOMContentLoaded', function() {
-              if (window.__NUXT__ && window.__NUXT__.middleware) {
-                window.__NUXT__.middleware.global = [];
-              }
-            });
-          `,
-          type: 'text/javascript'
-        }
-      ]
     }
   },
   vite: {
