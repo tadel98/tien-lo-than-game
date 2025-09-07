@@ -12,8 +12,8 @@ export default eventHandler(async (event) => {
     let prismaSuccess = false
     
     try {
-      const { getPrismaClient } = require('../../lib/prisma')
-      const prisma = getPrismaClient()
+      const { getPrismaClient } = await import('../../lib/prisma.js')
+      const prisma = await getPrismaClient()
       prismaSuccess = true
     } catch (error) {
       prismaError = error.message
