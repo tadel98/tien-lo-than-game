@@ -10,7 +10,6 @@
     "generate": "npx nuxt@3.7.4 generate",
     "preview": "npx nuxt@3.7.4 preview",
     "postinstall": "npx prisma generate || echo 'Prisma generate failed but continuing'",
-    "postbuild": "node scripts/vercel-postbuild.js",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
     "db:seed": "node scripts/seed-all-game-data.js",
