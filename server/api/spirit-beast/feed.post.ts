@@ -1,11 +1,14 @@
-import { PrismaClient } from '@prisma/client'
-import { readBody, eventHandler, createError } from 'h3'
 
-const prisma = new PrismaClient()
+import { readBody, eventHandler, createError } from 'h3'
+const { getPrismaClient } = require('../../../lib/prisma')
+
+
 
 export default eventHandler(async (event) => {
   try {
-    const body = await readBody(event)
+    
+    const prisma = getPrismaClient()
+const body = await readBody(event)
     const { playerId, beastId, foodId, quantity = 1 } = body
 
     if (!playerId || !beastId || !foodId) {
@@ -148,3 +151,4 @@ export default eventHandler(async (event) => {
     })
   }
 })
+

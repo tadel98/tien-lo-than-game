@@ -1,11 +1,14 @@
-import { PrismaClient } from '@prisma/client'
-import { readBody, eventHandler, createError } from 'h3'
 
-const prisma = new PrismaClient()
+import { readBody, eventHandler, createError } from 'h3'
+const { getPrismaClient } = require('../../../lib/prisma')
+
+
 
 export default eventHandler(async (event) => {
   try {
-    const body = await readBody(event)
+    
+    const prisma = getPrismaClient()
+const body = await readBody(event)
     const { playerId, monsterType = 'basic' } = body
 
     if (!playerId) {
@@ -144,3 +147,4 @@ function calculateNewLevel(experience: number): number {
   // Công thức: level = sqrt(experience / 1440) + 1
   return Math.floor(Math.sqrt(experience / 1440)) + 1
 }
+

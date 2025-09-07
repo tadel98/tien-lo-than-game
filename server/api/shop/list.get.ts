@@ -1,10 +1,9 @@
-import { PrismaClient } from '@prisma/client'
 import { getQuery, eventHandler, createError } from 'h3'
-
-const prisma = new PrismaClient()
+const { getPrismaClient } = require('../../../lib/prisma')
 
 export default eventHandler(async (event) => {
   try {
+    const prisma = getPrismaClient()
     const query = getQuery(event)
     const category = query.category as string
 

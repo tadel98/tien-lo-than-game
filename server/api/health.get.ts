@@ -1,10 +1,9 @@
-import { PrismaClient } from '@prisma/client'
 import { eventHandler, createError } from 'h3'
-
-const prisma = new PrismaClient()
+const { getPrismaClient } = require('../../lib/prisma')
 
 export default eventHandler(async (event) => {
   try {
+    const prisma = getPrismaClient()
     // Test database connection
     await prisma.$connect()
     

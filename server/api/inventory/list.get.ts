@@ -1,11 +1,14 @@
-import { PrismaClient } from '@prisma/client'
-import { getQuery, eventHandler, createError } from 'h3'
 
-const prisma = new PrismaClient()
+import { getQuery, eventHandler, createError } from 'h3'
+const { getPrismaClient } = require('../../../lib/prisma')
+
+
 
 export default eventHandler(async (event) => {
   try {
-    const query = getQuery(event)
+    
+    const prisma = getPrismaClient()
+const query = getQuery(event)
     const playerId = query.playerId as string
 
     if (!playerId) {
@@ -47,3 +50,4 @@ export default eventHandler(async (event) => {
     })
   }
 })
+

@@ -1,11 +1,14 @@
-import { PrismaClient } from '@prisma/client'
-import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
 
-const prisma = new PrismaClient()
+import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
+const { getPrismaClient } = require('../../../lib/prisma')
+
+
 
 export default eventHandler(async (event) => {
   try {
-    const body = await readBody(event)
+    
+    const prisma = getPrismaClient()
+const body = await readBody(event)
     const { playerId, resourceName, amount } = body
 
     if (!playerId || !resourceName || !amount) {
@@ -64,3 +67,4 @@ export default eventHandler(async (event) => {
     })
   }
 })
+

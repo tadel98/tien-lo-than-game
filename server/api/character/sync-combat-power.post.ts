@@ -1,11 +1,14 @@
-import { PrismaClient } from '@prisma/client'
-import { eventHandler, createError } from 'h3'
 
-const prisma = new PrismaClient()
+import { eventHandler, createError } from 'h3'
+const { getPrismaClient } = require('../../../lib/prisma')
+
+
 
 export default eventHandler(async (event) => {
   try {
-    // Lấy tất cả người chơi có stats
+    
+    const prisma = getPrismaClient()
+// Lấy tất cả người chơi có stats
     const players = await prisma.player.findMany({
       where: {
         stats: {
@@ -97,3 +100,4 @@ export default eventHandler(async (event) => {
     })
   }
 })
+

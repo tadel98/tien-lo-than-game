@@ -1,11 +1,14 @@
-import { PrismaClient } from '@prisma/client'
-import { getQuery, eventHandler, createError } from 'h3'
 
-const prisma = new PrismaClient()
+import { getQuery, eventHandler, createError } from 'h3'
+const { getPrismaClient } = require('../../../lib/prisma')
+
+
 
 export default eventHandler(async (event) => {
   try {
-    const query = getQuery(event)
+    
+    const prisma = getPrismaClient()
+const query = getQuery(event)
     const limit = parseInt(query.limit as string) || 20
     const type = query.type as string || 'level' // level, combat_power, experience
 
@@ -139,3 +142,4 @@ export default eventHandler(async (event) => {
     })
   }
 })
+
