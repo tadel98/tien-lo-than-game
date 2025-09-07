@@ -8,16 +8,6 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ],
   css: ['~/assets/css/main.css'],
-  app: {
-    head: {
-      title: 'Tiên Lộ Thần - Game Tu Luyện',
-      meta: [
-        { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Game tu luyện với giao diện đẹp mắt' }
-      ]
-    }
-  },
   nitro: {
     preset: 'vercel',
     compatibilityDate: '2024-04-03',
@@ -43,6 +33,25 @@ export default defineNuxtConfig({
   experimental: {
     payloadExtraction: false
   },
+  hooks: {
+    'app:created': () => {
+      // Disable global middleware to prevent iteration errors
+      if (typeof window !== 'undefined') {
+        window.__NUXT__ = window.__NUXT__ || {}
+        window.__NUXT__.middleware = []
+      }
+    }
+  },
+  app: {
+    head: {
+      title: 'Tiên Lộ Thần - Game Tu Luyện',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'Game tu luyện với giao diện đẹp mắt' }
+      ]
+    }
+  },
   vite: {
     optimizeDeps: {
       include: ['@prisma/client']
@@ -57,7 +66,7 @@ export default defineNuxtConfig({
   build: {
     transpile: ['@prisma/client']
   },
-  ssr: true,
+  ssr: false,
   runtimeConfig: {
     // Private keys (only available on server-side)
     jwtSecret: process.env.JWT_SECRET || 'default-secret',
