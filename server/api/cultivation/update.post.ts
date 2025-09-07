@@ -1,8 +1,9 @@
-const { prisma } = require('../../../lib/prisma')
+const { getPrismaClient } = require('../../../lib/prisma')
 import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
 
 export default eventHandler(async (event) => {
   try {
+    const prisma = getPrismaClient()
     const body = await readBody(event)
     const { playerId, cultivationData } = body
 
