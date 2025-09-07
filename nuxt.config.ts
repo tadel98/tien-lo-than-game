@@ -31,11 +31,9 @@ export default defineNuxtConfig({
     }
   },
   experimental: {
-    payloadExtraction: false
+    payloadExtraction: false,
+    clientNodeCompat: true
   },
-  plugins: [
-    '~/plugins/middleware-fix.client.ts'
-  ],
   router: {
     options: {
       strict: false
@@ -48,6 +46,18 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Game tu luyện với giao diện đẹp mắt' }
+      ],
+      script: [
+        {
+          innerHTML: `
+            window.addEventListener('DOMContentLoaded', function() {
+              if (window.__NUXT__ && window.__NUXT__.middleware) {
+                window.__NUXT__.middleware.global = [];
+              }
+            });
+          `,
+          type: 'text/javascript'
+        }
       ]
     }
   },
