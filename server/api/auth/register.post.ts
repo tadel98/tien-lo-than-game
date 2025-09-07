@@ -81,7 +81,7 @@ export default eventHandler(async (event) => {
 
     // Initialize player resources (with error handling)
     try {
-      await initializePlayerResources(user.player!.id)
+      await initializePlayerResources(prisma, user.player!.id)
     } catch (resourceError) {
       console.warn('Failed to initialize player resources:', resourceError)
       // Continue with registration even if resource initialization fails
@@ -113,7 +113,7 @@ export default eventHandler(async (event) => {
   }
 })
 
-async function initializePlayerResources(playerId: string) {
+async function initializePlayerResources(prisma: any, playerId: string) {
   try {
     // Get all resources
     const resources = await prisma.resource.findMany()
