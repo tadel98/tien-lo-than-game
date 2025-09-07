@@ -7,7 +7,7 @@ const { getPrismaClient } = require('../../../lib/prisma')
 export default eventHandler(async (event) => {
   try {
     
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
 const query = getQuery(event)
     const limit = parseInt(query.limit as string) || 20
     const type = query.type as string || 'level' // level, combat_power, experience
@@ -142,4 +142,5 @@ const query = getQuery(event)
     })
   }
 })
+
 

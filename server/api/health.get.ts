@@ -3,7 +3,7 @@ const { getPrismaClient } = require('../../lib/prisma')
 
 export default eventHandler(async (event) => {
   try {
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
     // Test database connection
     await prisma.$connect()
     
@@ -42,3 +42,4 @@ export default eventHandler(async (event) => {
     await prisma.$disconnect()
   }
 })
+

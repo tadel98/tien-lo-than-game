@@ -3,7 +3,7 @@ import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h
 
 export default eventHandler(async (event) => {
   try {
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
     const query = getQuery(event)
     const playerId = query.playerId as string
 
@@ -59,3 +59,4 @@ export default eventHandler(async (event) => {
     })
   }
 })
+

@@ -7,7 +7,7 @@ const { getPrismaClient } = require('../../../lib/prisma')
 export default eventHandler(async (event) => {
   try {
     
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
 // Lấy tất cả người chơi có stats
     const players = await prisma.player.findMany({
       where: {
@@ -100,4 +100,5 @@ export default eventHandler(async (event) => {
     })
   }
 })
+
 

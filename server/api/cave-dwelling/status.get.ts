@@ -7,7 +7,7 @@ const { getPrismaClient } = require('../../../lib/prisma')
 export default eventHandler(async (event) => {
   try {
     
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
 const query = getQuery(event)
     const playerId = query.playerId as string
 
@@ -101,4 +101,5 @@ function calculateUpgradeCost(level: number) {
 function canUpgradeCave(caveDwelling: any) {
   return caveDwelling.level < caveDwelling.maxLevel
 }
+
 

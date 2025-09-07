@@ -21,7 +21,7 @@ export default eventHandler(async (event) => {
     }
 
     // Get Prisma client
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
 
     // Find user
     const user = await prisma.user.findFirst({
@@ -93,3 +93,4 @@ export default eventHandler(async (event) => {
     }
   }
 })
+

@@ -10,7 +10,7 @@ export default eventHandler(async (event) => {
     const body = await readBody(event)
     
     // Get Prisma client
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
     console.log('Request body:', { username: body.username, email: body.email, playerName: body.playerName })
     
     const { username, email, password, playerName } = body
@@ -142,3 +142,4 @@ async function initializePlayerResources(prisma: any, playerId: string) {
     throw error
   }
 }
+

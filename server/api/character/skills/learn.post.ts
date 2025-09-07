@@ -7,7 +7,7 @@ const { getPrismaClient } = require('../../../lib/prisma')
 export default eventHandler(async (event) => {
   try {
     
-    const prisma = getPrismaClient()
+    const prisma = await getPrismaClient()
 const body = await readBody(event)
     const { playerId, skillId } = body
 
@@ -91,4 +91,5 @@ const body = await readBody(event)
     })
   }
 })
+
 
