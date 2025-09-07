@@ -1,0 +1,14 @@
+{
+  "framework": "nuxtjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "env": {
+    "PRISMA_GENERATE_DATAPROXY": "true"
+  },
+  "regions": ["sin1"],
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}

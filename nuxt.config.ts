@@ -30,9 +30,13 @@ export default defineNuxtConfig({
       }
     },
     rollupConfig: {
-      external: ['@prisma/client', '.prisma']
+      external: ['@prisma/client', '.prisma', 'prisma']
     },
     alias: {
+      '.prisma': '@prisma/client',
+      'prisma': '@prisma/client'
+    },
+    replace: {
       '.prisma': '@prisma/client'
     }
   },
