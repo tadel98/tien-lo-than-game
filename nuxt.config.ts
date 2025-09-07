@@ -20,6 +20,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'vercel',
+    compatibilityDate: '2024-04-03',
     experimental: {
       wasm: true
     },
@@ -29,7 +30,10 @@ export default defineNuxtConfig({
       }
     },
     rollupConfig: {
-      external: ['@prisma/client']
+      external: ['@prisma/client', '.prisma']
+    },
+    alias: {
+      '.prisma': '@prisma/client'
     }
   },
   vite: {
