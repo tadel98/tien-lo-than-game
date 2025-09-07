@@ -33,13 +33,9 @@ export default defineNuxtConfig({
   experimental: {
     payloadExtraction: false
   },
-  hooks: {
-    'app:created': () => {
-      // Disable global middleware to prevent iteration errors
-      if (typeof window !== 'undefined') {
-        window.__NUXT__ = window.__NUXT__ || {}
-        window.__NUXT__.middleware = []
-      }
+  router: {
+    options: {
+      strict: false
     }
   },
   app: {
