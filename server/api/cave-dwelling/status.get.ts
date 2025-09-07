@@ -1,6 +1,6 @@
 
 import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
-const { getPrismaClient } = require('../../../lib/prisma')
+import { getPrismaClient } from '../../../lib/prisma.js'
 
 
 
@@ -101,5 +101,6 @@ function calculateUpgradeCost(level: number) {
 function canUpgradeCave(caveDwelling: any) {
   return caveDwelling.level < caveDwelling.maxLevel
 }
+
 
 

@@ -1,6 +1,6 @@
 
 import { readBody, eventHandler, createError } from 'h3'
-const { getPrismaClient } = require('../../../lib/prisma')
+import { getPrismaClient } from '../../../lib/prisma.js'
 
 
 
@@ -147,5 +147,6 @@ function calculateNewLevel(experience: number): number {
   // Công thức: level = sqrt(experience / 1440) + 1
   return Math.floor(Math.sqrt(experience / 1440)) + 1
 }
+
 
 

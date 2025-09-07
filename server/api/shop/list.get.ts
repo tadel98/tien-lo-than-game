@@ -1,5 +1,5 @@
 import { getQuery, eventHandler, createError } from 'h3'
-const { getPrismaClient } = require('../../../lib/prisma')
+import { getPrismaClient } from '../../../lib/prisma.js'
 
 export default eventHandler(async (event) => {
   try {
@@ -39,4 +39,5 @@ export default eventHandler(async (event) => {
     })
   }
 })
+
 

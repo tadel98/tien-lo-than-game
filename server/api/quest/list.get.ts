@@ -1,4 +1,4 @@
-const { getPrismaClient } = require('../../../lib/prisma')
+import { getPrismaClient } from '../../../lib/prisma.js'
 import { getQuery, eventHandler, createError } from 'h3'
 
 export default eventHandler(async (event) => {
@@ -182,3 +182,4 @@ export default eventHandler(async (event) => {
     })
   }
 })
+

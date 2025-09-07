@@ -1,6 +1,6 @@
 
 import { readBody, eventHandler, createError } from 'h3'
-const { getPrismaClient } = require('../../../lib/prisma')
+import { getPrismaClient } from '../../../lib/prisma.js'
 
 
 
@@ -170,4 +170,5 @@ const body = await readBody(event)
     })
   }
 })
+
 
