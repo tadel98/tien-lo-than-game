@@ -6,14 +6,21 @@ export default defineNuxtPlugin({
       // Fix middleware iteration error
       try {
         const nuxtApp = useNuxtApp()
-        if (nuxtApp && nuxtApp._middleware && nuxtApp._middleware.global) {
-          // Ensure global middleware is an array
-          if (!Array.isArray(nuxtApp._middleware.global)) {
+        if (nuxtApp) {
+          // Override middleware completely
+          if (nuxtApp._middleware) {
+            nuxtApp._middleware.global = []
+          } else {
+            nuxtApp._middleware = { global: [] }
+          }
+          
+          // Also fix any other middleware properties
+          if (nuxtApp._middleware && typeof nuxtApp._middleware.global !== 'object') {
             nuxtApp._middleware.global = []
           }
         }
       } catch (error) {
-        console.log('Middleware fix applied')
+        console.log('Middleware fix applied:', error.message)
       }
     }
   }
