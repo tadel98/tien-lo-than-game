@@ -7,17 +7,11 @@ try {
   console.log('📦 Generating Prisma client...');
   execSync('npx prisma generate', { stdio: 'inherit' });
   
-  // Push database schema
-  console.log('🗄️ Pushing database schema...');
-  execSync('npx prisma db push', { stdio: 'inherit' });
+  // Skip database push in build environment (DATABASE_URL not available)
+  console.log('⏭️ Skipping database push in build environment...');
   
-  // Seed database
-  console.log('🌱 Seeding database...');
-  try {
-    execSync('node scripts/seed-all-game-data.js', { stdio: 'inherit' });
-  } catch (seedError) {
-    console.log('⚠️ Seeding failed, continuing...', seedError.message);
-  }
+  // Skip seeding in build environment (DATABASE_URL not available)
+  console.log('⏭️ Skipping database seeding in build environment...');
   
   console.log('✅ Post-build script completed successfully!');
 } catch (error) {
