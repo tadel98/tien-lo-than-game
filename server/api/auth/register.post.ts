@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-const { prisma } = require('../../../lib/prisma')
+const { getPrismaClient } = require('../../../lib/prisma')
 import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
 
 export default eventHandler(async (event) => {
@@ -8,6 +8,9 @@ export default eventHandler(async (event) => {
     console.log('Register API called with method:', event.method)
     
     const body = await readBody(event)
+    
+    // Get Prisma client
+    const prisma = getPrismaClient()
     console.log('Request body:', { username: body.username, email: body.email, playerName: body.playerName })
     
     const { username, email, password, playerName } = body

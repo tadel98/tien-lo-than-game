@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-const { prisma } = require('../../../lib/prisma')
+const { getPrismaClient } = require('../../../lib/prisma')
 import { readBody, eventHandler, createError, getQuery, getRouterParam } from 'h3'
 
 export default eventHandler(async (event) => {
@@ -19,6 +19,9 @@ export default eventHandler(async (event) => {
         statusMessage: 'Thiếu tên đăng nhập hoặc mật khẩu'
       })
     }
+
+    // Get Prisma client
+    const prisma = getPrismaClient()
 
     // Find user
     const user = await prisma.user.findFirst({
