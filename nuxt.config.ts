@@ -34,6 +34,9 @@ export default defineNuxtConfig({
     payloadExtraction: false,
     clientNodeCompat: true
   },
+  plugins: [
+    '~/plugins/middleware-fix.client.ts'
+  ],
   router: {
     options: {
       strict: false
