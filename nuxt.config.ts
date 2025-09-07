@@ -40,6 +40,12 @@ export default defineNuxtConfig({
       '.prisma': '@prisma/client'
     }
   },
+  experimental: {
+    payloadExtraction: false
+  },
+  router: {
+    middleware: []
+  },
   vite: {
     optimizeDeps: {
       include: ['@prisma/client']
